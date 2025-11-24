@@ -10,6 +10,13 @@ const data = [
       { title: 'Final Boss', path: 'Week 1/final-boss.html' },
       { title: 'Mini Game', path: 'Week 1/mini-game.html' }
     ]
+  },
+  {
+    week: 'Week 2',
+    description: 'Ngày 1: Monday Warm-up — ôn lại Week 1 (30 câu, 15 phút)',
+    lessons: [
+      { title: "Week 1 Review — Monday Warm-up (30 Q, 15m)", path: 'Week 2/bai-tap-1.html' }
+    ]
   }
 ]
 
