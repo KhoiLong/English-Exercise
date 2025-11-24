@@ -1,0 +1,23 @@
+:root{--bg:#f7f9fb;--card:#ffffff;--accent:#2b7cff;--muted:#6b7280}
+*{box-sizing:border-box}
+body{font-family:Inter,system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial;margin:0;background:var(--bg);color:#0f172a}
+.site-header{background:linear-gradient(90deg,var(--accent),#6ea8ff);color:#fff;padding:28px 20px}
+.site-header h1{margin:0;font-size:20px}
+.tagline{margin:6px 0 0;font-size:14px;opacity:.95}
+.container{max-width:980px;margin:28px auto;padding:0 16px}
+.controls{display:flex;gap:8px;margin-bottom:12px}
+#search{flex:1;padding:10px;border-radius:8px;border:1px solid #e6eefb}
+.weeks{display:flex;flex-direction:column;gap:12px}
+.week-card{background:var(--card);padding:14px;border-radius:10px;box-shadow:0 6px 18px rgba(18,38,63,.06)}
+.week-header{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.week-title{font-weight:600}
+.week-desc{color:var(--muted);font-size:13px}
+.lesson-list{margin-top:10px;padding-left:0;list-style:none;display:none;gap:8px}
+.lesson-list.show{display:block}
+.lesson-item{display:flex;justify-content:space-between;align-items:center;padding:8px;border-radius:8px}
+.lesson-item a{color:var(--accent);text-decoration:none}
+.lesson-item a:hover{text-decoration:underline}
+.btn{background:transparent;border:1px solid #e6eefb;padding:6px 10px;border-radius:8px;color:var(--accent);cursor:pointer}
+.small{font-size:13px;color:var(--muted)}
+.site-footer{text-align:center;padding:18px;color:var(--muted);font-size:13px}
+@media (max-width:640px){.site-header{padding:20px}.container{margin:18px 12px}}
