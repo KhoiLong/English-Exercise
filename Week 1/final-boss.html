@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Writing Coach: FINAL BOSS BATTLE</title>
+<style>
+    :root {
+        --primary: #7209b7; /* Tím trùm cuối */
+        --secondary: #3a0ca3;
+        --accent: #f72585; /* Hồng neon */
+        --bg: #f8f9fa;
+        --text: #333;
+    }
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: var(--bg);
+        color: var(--text);
+        line-height: 1.6;
+        margin: 0;
+        padding: 20px;
+        padding-top: 70px;
+    }
+    .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        display: none;
+    }
+    
+    /* START SCREEN */
+    #start-screen {
+        max-width: 600px;
+        margin: 50px auto;
+        background: white;
+        padding: 40px;
+        border-radius: 15px;
+        text-align: center;
+        border: 2px solid var(--primary);
+        box-shadow: 0 10px 25px rgba(114, 9, 183, 0.2);
+    }
+    .btn-start {
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 20px 40px;
+        font-size: 1.5em;
+        font-weight: bold;
+        border-radius: 50px;
+        cursor: pointer;
+        transition: transform 0.2s;
+        box-shadow: 0 4px 15px rgba(114, 9, 183, 0.4);
+    }
+    .btn-start:hover { transform: scale(1.05); background: var(--secondary); }
+
+    /* Sticky Timer */
+    #timer-bar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        background: var(--secondary);
+        color: white;
+        text-align: center;
+        padding: 15px 0;
+        font-size: 1.5em;
+        font-weight: bold;
+        z-index: 1000;
+        display: none;
+    }
+    .warning { background-color: var(--accent) !important; animation: pulse 0.5s infinite; }
+    
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.02); }
+        100% { transform: scale(1); }
+    }
+
+    h1 { color: var(--secondary); text-align: center; border-bottom: 2px solid var(--accent); padding-bottom: 10px; }
+    
+    .question-card {
+        background: #fff;
+        border: 1px solid #ddd;
+        border-left: 6px solid var(--primary);
+        padding: 20px;
+        margin-bottom: 20px;
+        border-radius: 8px;
+    }
+    .question-text { font-weight: bold; font-size: 1.15em; margin-bottom: 15px; display: block; }
+    
+    .options label {
+        display: block;
+        margin-bottom: 10px;
+        cursor: pointer;
+        padding: 12px;
+        background: #f8f9fa;
+        border-radius: 6px;
+        border: 1px solid #eee;
+        transition: 0.2s;
+    }
+    .options label:hover { background: #e0aaff; border-color: var(--primary); }
+    .options input[type="radio"] { margin-right: 10px; transform: scale(1.2); }
+
+    /* Explanation Styles */
+    .explanation-box {
+        margin-top: 15px;
+        padding: 15px;
+        background-color: #ede9fe;
+        border-radius: 5px;
+        border-left: 4px solid var(--accent);
+        display: none;
+    }
+    .correct-text { color: #008000; font-weight: bold; }
+    .wrong-text { color: #d00000; font-weight: bold; }
+
+    .btn-submit {
+        display: block;
+        width: 100%;
+        padding: 15px;
+        background: var(--accent);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.2em;
+        cursor: pointer;
+        margin-top: 30px;
+        font-weight: bold;
+    }
+    .btn-submit:hover { background: #c9184a; }
+    
+    /* REPORT */
+    #report-section {
+        display: none;
+        margin-top: 30px;
+        padding: 20px;
+        background: #f3f4f6;
+        border: 2px dashed var(--secondary);
+    }
+    textarea#final-report {
+        width: 100%;
+        height: 250px;
+        font-family: monospace;
+        padding: 10px;
+        border: 1px solid #ccc;
+        margin-bottom: 10px;
+    }
+</style>
+</head>
+<body>
+
+<div id="start-screen">
+    <h1>👾 FINAL BOSS BATTLE</h1>
+    <p>Chào mừng đến với cửa ải cuối cùng!</p>
+    <p>Đây là 15 câu hỏi <b>"Hack Não"</b> nhất.</p>
+    <p><i>Cảnh báo: Đừng tin vào mắt, hãy tin vào logic.</i></p>
+    <p>Thời gian: <b>15 phút</b></p>
+    <button class="btn-start" onclick="startQuiz()">CHIẾN THÔI!</button>
+</div>
+
+<div id="timer-bar">Thời gian còn lại: <span id="time">15:00</span></div>
+
+<div class="container" id="quiz-content">
+    <h1>⚔️ Trận Chiến Cuối Cùng</h1>
+    <div id="quiz-container"></div>
+    <button class="btn-submit" onclick="submitQuiz()">Tung Chiêu Cuối (Nộp Bài)</button>
+    
+    <div id="report-section">
+        <h3>📊 Kết Quả Trận Đấu</h3>
+        <textarea id="final-report" readonly></textarea>
+    </div>
+</div>
+
+<script>
+    const questions = [
+        // Bẫy Đảo Ngữ & There is/are
+        { 
+            q: "1. There _____ a book and two pens on the table.", 
+            opts: ["is", "are", "be"], 
+            a: "is", 
+            exp: "☠️ <b>Bẫy 'There':</b> Với cấu trúc 'There is/are', động từ chia theo danh từ GẦN NHẤT. Gần nhất là 'a book' (số ít) -> dùng IS. (Dù phía sau có 2 pens kệ nó)." 
+        },
+        { 
+            q: "2. Under the tree _____ three dogs.", 
+            opts: ["stand", "stands", "standing"], 
+            a: "stand", 
+            exp: "☠️ <b>Bẫy Đảo Ngữ:</b> Chủ ngữ thật sự là 'three dogs' (nằm cuối câu) -> Số nhiều -> STAND (giữ nguyên). 'Under the tree' chỉ là trạng từ chỉ nơi chốn." 
+        },
+        
+        // Bẫy Mệnh Đề Quan Hệ (Lồng ghép)
+        { 
+            q: "3. The woman who _____ next door _____ a doctor.", 
+            opts: ["live / is", "lives / are", "lives / is"], 
+            a: "lives / is", 
+            exp: "☠️ <b>Bẫy Lồng Ghép:</b> Cả 2 động từ đều chia theo 'The woman' (số ít). 'The woman lives...' và 'The woman is...'" 
+        },
+        { 
+            q: "4. The cars which _____ parked outside _____ to me.", 
+            opts: ["is / belong", "are / belongs", "are / belong"], 
+            a: "are / belong", 
+            exp: "☠️ <b>Logic:</b> 'The cars' (số nhiều) -> are parked. Và 'The cars' (số nhiều) -> belong (giữ nguyên)." 
+        },
+
+        // Bẫy Chủ Ngữ Phức Tạp
+        { 
+            q: "5. Either you or I _____ responsible for this.", 
+            opts: ["am", "are", "is"], 
+            a: "am", 
+            exp: "☠️ <b>Quy tắc 'Hoặc':</b> Với 'Either... or...', động từ chia theo chủ ngữ GẦN NHẤT. Gần nhất là 'I' -> dùng AM." 
+        },
+        { 
+            q: "6. Neither the teacher nor the students _____ the answer.", 
+            opts: ["know", "knows", "knowing"], 
+            a: "know", 
+            exp: "☠️ <b>Quy tắc 'Không ai':</b> Tương tự, chia theo gần nhất là 'students' (số nhiều) -> KNOW (giữ nguyên)." 
+        },
+        { 
+            q: "7. Making friends _____ easier than keeping them.", 
+            opts: ["is", "are", "be"], 
+            a: "is", 
+            exp: "☠️ <b>Bẫy V-ing:</b> Chủ ngữ là hành động 'Making' (số ít) -> IS. Đừng nhìn chữ 'friends' mà bị lừa!" 
+        },
+
+        // Bẫy Đại Từ & Số Lượng
+        { 
+            q: "8. Each of the students _____ a unique talent.", 
+            opts: ["have", "has", "having"], 
+            a: "has", 
+            exp: "☠️ <b>Bẫy 'Each':</b> 'Each' (Mỗi một người) luôn luôn là số ít -> HAS. Dù phía sau là 'students'." 
+        },
+        { 
+            q: "9. A number of students _____ absent today.", 
+            opts: ["is", "are", "be"], 
+            a: "are", 
+            exp: "☠️ <b>Phân biệt:</b> 'A number of' = Many (Nhiều) -> Số nhiều -> ARE. (Khác với 'The number of' là số ít)." 
+        },
+        { 
+            q: "10. Two-thirds of the cake _____ eaten.", 
+            opts: ["was", "were", "be"], 
+            a: "was", 
+            exp: "☠️ <b>Bẫy Phân Số:</b> Với phân số, ta nhìn danh từ sau 'of'. 'The cake' (số ít/không đếm được) -> WAS." 
+        },
+        { 
+            q: "11. Two-thirds of the students _____ boys.", 
+            opts: ["is", "are", "be"], 
+            a: "are", 
+            exp: "☠️ <b>Bẫy Phân Số (2):</b> Nhìn sau 'of' thấy 'students' (số nhiều) -> ARE." 
+        },
+
+        // Bẫy Tên Riêng & Tập Hợp
+        { 
+            q: "12. 'Romeo and Juliet' _____ a classic play.", 
+            opts: ["is", "are", "be"], 
+            a: "is", 
+            exp: "☠️ <b>Bẫy Tên Riêng:</b> Đây là TÊN của 1 vở kịch (dù có 'and') -> Số ít -> IS." 
+        },
+        { 
+            q: "13. The police _____ looking for the thief.", 
+            opts: ["is", "are", "be"], 
+            a: "are", 
+            exp: "☠️ <b>Ngoại lệ:</b> 'The police' (Cảnh sát nói chung) luôn được tính là số nhiều -> ARE." 
+        },
+        { 
+            q: "14. Ten kilometers _____ a long way to walk.", 
+            opts: ["is", "are", "be"], 
+            a: "is", 
+            exp: "☠️ <b>Khoảng cách:</b> Khoảng cách, thời gian, tiền bạc luôn là số ít -> IS." 
+        },
+        { 
+            q: "15. What I need _____ a new computer.", 
+            opts: ["is", "are", "am"], 
+            a: "is", 
+            exp: "☠️ <b>Mệnh đề danh ngữ:</b> Cả cụm 'What I need' (Cái điều tôi cần) đóng vai trò là chủ ngữ số ít -> IS." 
+        }
+    ];
+
+    let timerInterval;
+    let totalTime = 15 * 60; 
+
+    function startQuiz() {
+        document.getElementById('start-screen').style.display = 'none';
+        document.getElementById('quiz-content').style.display = 'block';
+        document.getElementById('timer-bar').style.display = 'block';
+        
+        const container = document.getElementById('quiz-container');
+        questions.forEach((item, index) => {
+            let optionsHTML = '';
+            item.opts.forEach(opt => {
+                optionsHTML += `<label><input type="radio" name="q${index}" value="${opt}"> ${opt}</label>`;
+            });
+
+            container.innerHTML += `
+                <div class="question-card" id="card-${index}">
+                    <span class="question-text">${item.q}</span>
+                    <div class="options">${optionsHTML}</div>
+                    <div class="explanation-box" id="exp-${index}">
+                        ${item.exp}
+                    </div>
+                </div>
+            `;
+        });
+        startTimer(totalTime);
+    }
+
+    function startTimer(duration) {
+        let timer = duration, minutes, seconds;
+        const display = document.getElementById('time');
+        const timerBar = document.getElementById('timer-bar');
+
+        timerInterval = setInterval(function () {
+            minutes = parseInt(timer / 60, 10);
+            seconds = parseInt(timer % 60, 10);
+            minutes = minutes < 10 ? "0" + minutes : minutes;
+            seconds = seconds < 10 ? "0" + seconds : seconds;
+            display.textContent = minutes + ":" + seconds;
+
+            if (timer < 60) timerBar.classList.add('warning');
+            if (--timer < 0) {
+                clearInterval(timerInterval);
+                submitQuiz();
+            }
+        }, 1000);
+    }
+
+    function submitQuiz() {
+        clearInterval(timerInterval);
+        let score = 0;
+        let reportText = `👾 KẾT QUẢ FINAL BOSS BATTLE\n--------------------------\n`;
+        
+        questions.forEach((item, index) => {
+            const selected = document.querySelector(`input[name="q${index}"]:checked`);
+            const expBox = document.getElementById(`exp-${index}`);
+            expBox.style.display = 'block';
+
+            let userAnswer = selected ? selected.value : "Bỏ trống";
+
+            if (selected && selected.value === item.a) {
+                score++;
+                expBox.innerHTML = `<span class="correct-text">✅ CHÍNH XÁC!</span><br>` + expBox.innerHTML;
+                document.getElementById(`card-${index}`).style.borderLeftColor = "#008000";
+            } else {
+                expBox.innerHTML = `<span class="wrong-text">❌ DÍNH BẪY RỒI! Đáp án: ${item.a}</span><br>` + expBox.innerHTML;
+                document.getElementById(`card-${index}`).style.borderLeftColor = "#d00000";
+                
+                reportText += `❌ Câu ${index + 1}: ${userAnswer} (Sai). Đáp án: ${item.a}\n`;
+            }
+        });
+
+        reportText = `🏆 ĐIỂM SỐ: ${score} / 15\n\n` + reportText;
+        if(score >= 13) reportText += `\n🌟 ĐÁNH GIÁ: TUYỆT ĐỐI! Vợ đã phá đảo game này!`;
+        else if(score >= 10) reportText += `\n😎 ĐÁNH GIÁ: Rất giỏi! Chỉ dính vài bẫy nhỏ.`;
+        else reportText += `\n💀 ĐÁNH GIÁ: Boss hơi mạnh. Cần luyện thêm logic nâng cao!`;
+
+        const reportArea = document.getElementById('report-section');
+        document.getElementById('final-report').value = reportText;
+        reportArea.style.display = 'block';
+        document.querySelector('.btn-submit').remove();
+        document.getElementById('timer-bar').style.display = 'none';
+        reportArea.scrollIntoView({behavior: "smooth"});
+    }
+</script>
+</body>
+</html>

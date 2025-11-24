@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Writing Coach: Remedial Practice (15 Mins)</title>
+<style>
+    :root {
+        --primary: #457b9d; /* Xanh dương đậm đà */
+        --secondary: #1d3557;
+        --accent: #e63946; /* Đỏ tạo điểm nhấn */
+        --bg: #f1faee;
+        --text: #333;
+    }
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: var(--bg);
+        color: var(--text);
+        line-height: 1.6;
+        margin: 0;
+        padding: 20px;
+        padding-top: 70px;
+    }
+    .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        display: none; /* Ẩn lúc đầu */
+    }
+    
+    /* START SCREEN */
+    #start-screen {
+        max-width: 600px;
+        margin: 50px auto;
+        background: white;
+        padding: 40px;
+        border-radius: 15px;
+        text-align: center;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    }
+    .btn-start {
+        background: var(--accent);
+        color: white;
+        border: none;
+        padding: 20px 40px;
+        font-size: 1.5em;
+        font-weight: bold;
+        border-radius: 50px;
+        cursor: pointer;
+        transition: transform 0.2s;
+        box-shadow: 0 4px 10px rgba(230, 57, 70, 0.4);
+    }
+    .btn-start:hover { transform: scale(1.05); background: #d62828; }
+
+    /* Sticky Timer */
+    #timer-bar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        background: var(--secondary);
+        color: white;
+        text-align: center;
+        padding: 15px 0;
+        font-size: 1.5em;
+        font-weight: bold;
+        z-index: 1000;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        display: none; /* Ẩn lúc đầu */
+    }
+    .warning { background-color: #d62828 !important; animation: pulse 1s infinite; }
+    
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.02); }
+        100% { transform: scale(1); }
+    }
+
+    h1 { color: var(--secondary); text-align: center; border-bottom: 2px solid var(--primary); padding-bottom: 10px; }
+    
+    .question-card {
+        background: #fff;
+        border: 1px solid #ddd;
+        border-left: 5px solid var(--primary);
+        padding: 20px;
+        margin-bottom: 20px;
+        border-radius: 8px;
+        transition: 0.3s;
+    }
+    .question-text { font-weight: bold; font-size: 1.1em; margin-bottom: 15px; display: block; }
+    
+    .options label {
+        display: block;
+        margin-bottom: 10px;
+        cursor: pointer;
+        padding: 10px;
+        background: #f9f9f9;
+        border-radius: 5px;
+        border: 1px solid #eee;
+        transition: 0.2s;
+    }
+    .options label:hover { background: #eef; border-color: var(--primary); }
+    .options input[type="radio"] { margin-right: 10px; transform: scale(1.2); }
+
+    /* Explanation Styles */
+    .explanation-box {
+        margin-top: 15px;
+        padding: 15px;
+        background-color: #e9f5f5;
+        border-radius: 5px;
+        border-left: 4px solid var(--secondary);
+        display: none;
+        font-size: 0.95em;
+    }
+    .exp-title { font-weight: bold; color: var(--secondary); display: block; margin-bottom: 5px; }
+    .correct-text { color: #2a9d8f; font-weight: bold; }
+    .wrong-text { color: #e63946; font-weight: bold; }
+
+    .btn-submit {
+        display: block;
+        width: 100%;
+        padding: 15px;
+        background: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.2em;
+        cursor: pointer;
+        margin-top: 30px;
+        font-weight: bold;
+    }
+    .btn-submit:hover { background: #1d3557; }
+    .btn-submit:disabled { background: #ccc; cursor: not-allowed; }
+
+    /* REPORT AREA */
+    #report-section {
+        display: none;
+        margin-top: 30px;
+        padding: 20px;
+        background: #f0f4f8;
+        border: 2px dashed #264653;
+        border-radius: 10px;
+    }
+    textarea#final-report {
+        width: 100%;
+        height: 200px;
+        font-family: monospace;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        margin-bottom: 10px;
+        white-space: pre; 
+    }
+    .btn-copy {
+        background: #2a9d8f;
+        color: white;
+        padding: 12px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1em;
+        font-weight: bold;
+        display: inline-block;
+    }
+    .btn-copy:hover { background: #1f7a6f; }
+
+</style>
+</head>
+<body>
+
+<div id="start-screen">
+    <h1 style="border:none;">🎯 Chiến dịch "Trám Lỗ Hổng"</h1>
+    <p>Bài tập này gồm <b>20 câu</b> tập trung vào những lỗi vợ vừa sai:</p>
+    <ul style="text-align: left; display: inline-block;">
+        <li>⚠️ Lỗi sau Do/Does</li>
+        <li>⚠️ Lỗi nhìn nhầm chủ ngữ (Looking at neighbor)</li>
+        <li>⚠️ Lỗi V-ing và Danh từ đặc biệt</li>
+    </ul>
+    <p>Thời gian: <b>15 phút</b></p>
+    <button class="btn-start" onclick="startQuiz()">BẮT ĐẦU LÀM BÀI</button>
+</div>
+
+<div id="timer-bar">Thời gian còn lại: <span id="time">15:00</span></div>
+
+<div class="container" id="quiz-content">
+    <h1>🔥 Review: 20 Câu "Phục Thù"</h1>
+    <div id="quiz-container"></div>
+
+    <button class="btn-submit" onclick="submitQuiz()">Nộp Bài & Xem Báo Cáo</button>
+    
+    <div id="report-section">
+        <h3 style="color: var(--secondary); margin-top: 0;">📊 Báo Cáo Kết Quả (Review)</h3>
+        <textarea id="final-report" readonly></textarea>
+        <button class="btn-copy" onclick="copyReport()">📋 Sao chép báo cáo</button>
+        <span id="copy-status" style="margin-left: 10px; color: green; font-weight: bold; display: none;">Đã copy!</span>
+    </div>
+</div>
+
+<script>
+    // DỮ LIỆU CÂU HỎI (20 CÂU TẬP TRUNG VÀO LỖI SAI)
+    const questions = [
+        // GROUP 1: DO/DOES + V_INF (Khắc phục lỗi trợ lý)
+        { q: "1. Does she _____ yoga every morning?", opts: ["do", "does", "doing"], a: "do", exp: "💡 Có 'Does' đứng đầu -> Động từ chính về nguyên thể (do)." },
+        { q: "2. He doesn't _____ spicy food.", opts: ["likes", "like", "liking"], a: "like", exp: "💡 Có 'doesn't' (Trợ lý) -> Động từ chính nghỉ ngơi (like)." },
+        { q: "3. Does your father _____ to work by car?", opts: ["drive", "drives", "driving"], a: "drive", exp: "💡 Câu hỏi có 'Does' -> Động từ về nguyên thể." },
+        { q: "4. My cat doesn't _____ milk.", opts: ["drink", "drinks", "drinking"], a: "drink", exp: "💡 Sau 'doesn't' luôn là V nguyên thể." },
+        { q: "5. Why does he _____ so angry?", opts: ["look", "looks", "looking"], a: "look", exp: "💡 Có 'does' trong câu hỏi -> 'Look' giữ nguyên." },
+
+        // GROUP 2: V-ING & TIME/MONEY (Khắc phục lỗi chủ ngữ giả)
+        { q: "6. Learning new languages _____ difficult.", opts: ["is", "are", "be"], a: "is", exp: "⚠️ Chủ ngữ là V-ing (Learning) -> Luôn số ít." },
+        { q: "7. Eating vegetables _____ good for health.", opts: ["is", "are", "be"], a: "is", exp: "⚠️ Chủ ngữ là hành động 'Eating' -> Số ít (dù vegetables số nhiều)." },
+        { q: "8. Ten minutes _____ not enough time.", opts: ["is", "are", "be"], a: "is", exp: "⌚ 10 phút là 'một khoảng thời gian' -> Số ít." },
+        { q: "9. Fifty dollars _____ too expensive for this shirt.", opts: ["is", "are", "be"], a: "is", exp: "💵 Số tiền luôn được tính là đơn vị số ít." },
+        { q: "10. Reading two books a week _____ my goal.", opts: ["is", "are", "be"], a: "is", exp: "⚠️ 'Reading' là chủ ngữ chính -> Số ít." },
+
+        // GROUP 3: "DON'T LOOK AT THE NEIGHBOR" (Khắc phục lỗi nhìn nhầm)
+        { q: "11. The box of chocolates _____ on the table.", opts: ["is", "are", "be"], a: "is", exp: "📦 Chủ ngữ chính là 'The box' (1 cái hộp) -> Số ít." },
+        { q: "12. The teacher, along with the students, _____ coming.", opts: ["is", "are", "be"], a: "is", exp: "👤 Chia theo 'The teacher', bỏ qua cụm 'along with...'." },
+        { q: "13. One of my friends _____ a doctor.", opts: ["is", "are", "am"], a: "is", exp: "👤 'One' (Một người) trong số bạn bè -> Số ít." },
+        { q: "14. The list of names _____ very long.", opts: ["is", "are", "be"], a: "is", exp: "📜 Chủ ngữ là 'The list' (Cái danh sách) -> Số ít." },
+        { q: "15. My boss, as well as his assistants, _____ here.", opts: ["is", "are", "be"], a: "is", exp: "👤 Chia theo 'My boss', bỏ qua 'as well as...'." },
+
+        // GROUP 4: SPECIAL NOUNS (Traffic, Glasses, Furniture)
+        { q: "16. The traffic in Hanoi _____ crazy.", opts: ["is", "are", "be"], a: "is", exp: "🚗 Traffic không đếm được -> Số ít." },
+        { q: "17. Where _____ my glasses?", opts: ["is", "are", "be"], a: "are", exp: "👓 Glasses (Mắt kính) luôn là số nhiều." },
+        { q: "18. Your new jeans _____ very fashionable.", opts: ["look", "looks", "looking"], a: "look", exp: "👖 Jeans (Quần bò) luôn là số nhiều -> Look (nguyên thể)." },
+        { q: "19. The furniture in this room _____ old.", opts: ["is", "are", "be"], a: "is", exp: "🪑 Furniture (Nội thất) là danh từ không đếm được -> Số ít." },
+        { q: "20. Fish and chips _____ a popular dish in the UK.", opts: ["is", "are", "be"], a: "is", exp: "🍟 Fish and chips là tên 1 món ăn -> Số ít." }
+    ];
+
+    const container = document.getElementById('quiz-container');
+    let timerInterval;
+    let totalTime = 15 * 60; // 15 phút
+    let timeSpent = 0;
+
+    // HÀM BẮT ĐẦU MỚI
+    function startQuiz() {
+        document.getElementById('start-screen').style.display = 'none'; // Ẩn màn hình chào
+        document.getElementById('quiz-content').style.display = 'block'; // Hiện bài thi
+        document.getElementById('timer-bar').style.display = 'block'; // Hiện đồng hồ
+        
+        initQuestions();
+        startTimer(totalTime);
+    }
+
+    function initQuestions() {
+        questions.forEach((item, index) => {
+            let optionsHTML = '';
+            item.opts.forEach(opt => {
+                optionsHTML += `<label><input type="radio" name="q${index}" value="${opt}"> ${opt}</label>`;
+            });
+
+            container.innerHTML += `
+                <div class="question-card" id="card-${index}">
+                    <span class="question-text">${item.q}</span>
+                    <div class="options">${optionsHTML}</div>
+                    <div class="explanation-box" id="exp-${index}">
+                        <span class="exp-title">👨‍🏫 Giải thích:</span>
+                        <span class="exp-content">${item.exp}</span>
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    function startTimer(duration) {
+        let timer = duration, minutes, seconds;
+        const display = document.getElementById('time');
+        const timerBar = document.getElementById('timer-bar');
+
+        timerInterval = setInterval(function () {
+            timeSpent = duration - timer;
+            minutes = parseInt(timer / 60, 10);
+            seconds = parseInt(timer % 60, 10);
+
+            minutes = minutes < 10 ? "0" + minutes : minutes;
+            seconds = seconds < 10 ? "0" + seconds : seconds;
+
+            display.textContent = minutes + ":" + seconds;
+
+            if (timer < 60) timerBar.classList.add('warning');
+
+            if (--timer < 0) {
+                clearInterval(timerInterval);
+                alert("Hết giờ! Hệ thống sẽ tự nộp bài.");
+                submitQuiz();
+            }
+        }, 1000);
+    }
+
+    function formatTime(seconds) {
+        let m = Math.floor(seconds / 60);
+        let s = seconds % 60;
+        return `${m} phút ${s} giây`;
+    }
+
+    function submitQuiz() {
+        clearInterval(timerInterval);
+        let score = 0;
+        let reportText = `📝 KẾT QUẢ BÀI "TRÁM LỖ HỔNG" (20 CÂU)\n`;
+        reportText += `------------------------------\n`;
+        reportText += `⏰ Thời gian làm: ${formatTime(timeSpent)}\n`;
+        
+        let wrongAnswers = [];
+
+        questions.forEach((item, index) => {
+            const selected = document.querySelector(`input[name="q${index}"]:checked`);
+            const expBox = document.getElementById(`exp-${index}`);
+            expBox.style.display = 'block';
+
+            let userAnswer = selected ? selected.value : "Chưa chọn";
+            let isCorrect = false;
+
+            if (selected && selected.value === item.a) {
+                score++;
+                isCorrect = true;
+                expBox.innerHTML = `<span class="correct-text">✅ Đúng rồi!</span><br>` + expBox.innerHTML;
+                document.getElementById(`card-${index}`).style.borderLeftColor = "#2a9d8f";
+            } else {
+                expBox.innerHTML = `<span class="wrong-text">❌ Sai rồi. Đáp án là: ${item.a}</span><br>` + expBox.innerHTML;
+                document.getElementById(`card-${index}`).style.borderLeftColor = "#e63946";
+                
+                wrongAnswers.push({
+                    idx: index + 1,
+                    q: item.q,
+                    user: userAnswer,
+                    correct: item.a,
+                    reason: item.exp
+                });
+            }
+        });
+
+        reportText += `🏆 Điểm số: ${score} / ${questions.length}\n\n`;
+        
+        if (score === questions.length) {
+            reportText += `🌟 QUÁ ĐỈNH! Vợ đã sửa hết sạch lỗi sai rồi!`;
+        } else if (wrongAnswers.length > 0) {
+            reportText += `⚠️ VẪN CÒN SÓT MẤY LỖI NÀY:\n`;
+            wrongAnswers.forEach(w => {
+                reportText += `❌ Câu ${w.idx}: ${w.q}\n`;
+                reportText += `   - Vợ chọn: ${w.user}\n`;
+                reportText += `   - Đáp án đúng: ${w.correct}\n`;
+                reportText += `   - Nhớ nè: ${w.reason}\n\n`;
+            });
+        }
+
+        const reportArea = document.getElementById('report-section');
+        const reportBox = document.getElementById('final-report');
+        reportBox.value = reportText;
+        reportArea.style.display = 'block';
+
+        document.querySelector('.btn-submit').disabled = true;
+        document.querySelector('.btn-submit').innerText = "Đã Nộp Bài";
+        document.getElementById('timer-bar').style.display = 'none';
+
+        reportArea.scrollIntoView({behavior: "smooth"});
+    }
+
+    function copyReport() {
+        const copyText = document.getElementById("final-report");
+        copyText.select();
+        copyText.setSelectionRange(0, 99999);
+        navigator.clipboard.writeText(copyText.value).then(() => {
+            const status = document.getElementById("copy-status");
+            status.style.display = "inline";
+            setTimeout(() => { status.style.display = "none"; }, 2000);
+        });
+    }
+
+</script>
+</body>
+</html>

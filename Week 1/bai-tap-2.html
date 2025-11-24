@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Writing Coach: Advanced Challenge (Timed & Report)</title>
+<style>
+    :root {
+        --primary: #E76F51;
+        --secondary: #264653;
+        --accent: #2A9D8F;
+        --bg: #F4F1DE;
+        --text: #333;
+    }
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: var(--bg);
+        color: var(--text);
+        line-height: 1.6;
+        margin: 0;
+        padding: 20px;
+        padding-top: 70px;
+    }
+    .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    
+    /* Sticky Timer */
+    #timer-bar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        background: var(--secondary);
+        color: white;
+        text-align: center;
+        padding: 15px 0;
+        font-size: 1.5em;
+        font-weight: bold;
+        z-index: 1000;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    }
+    .warning { background-color: #d62828 !important; animation: pulse 1s infinite; }
+    
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.02); }
+        100% { transform: scale(1); }
+    }
+
+    h1 { color: var(--secondary); text-align: center; border-bottom: 2px solid var(--primary); padding-bottom: 10px; }
+    
+    .question-card {
+        background: #fff;
+        border: 1px solid #ddd;
+        border-left: 5px solid var(--accent);
+        padding: 20px;
+        margin-bottom: 20px;
+        border-radius: 8px;
+        transition: 0.3s;
+    }
+    .question-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    
+    .question-text { font-weight: bold; font-size: 1.1em; margin-bottom: 15px; display: block; }
+    
+    .options label {
+        display: block;
+        margin-bottom: 10px;
+        cursor: pointer;
+        padding: 10px;
+        background: #f9f9f9;
+        border-radius: 5px;
+        border: 1px solid #eee;
+        transition: 0.2s;
+    }
+    .options label:hover { background: #eef; border-color: var(--accent); }
+    .options input[type="radio"] { margin-right: 10px; transform: scale(1.2); }
+
+    /* Explanation Styles */
+    .explanation-box {
+        margin-top: 15px;
+        padding: 15px;
+        background-color: #e9f5f5;
+        border-radius: 5px;
+        border-left: 4px solid var(--secondary);
+        display: none;
+        font-size: 0.95em;
+    }
+    .exp-title { font-weight: bold; color: var(--secondary); display: block; margin-bottom: 5px; }
+    .correct-text { color: var(--accent); font-weight: bold; }
+    .wrong-text { color: var(--primary); font-weight: bold; }
+
+    .btn-submit {
+        display: block;
+        width: 100%;
+        padding: 15px;
+        background: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.2em;
+        cursor: pointer;
+        margin-top: 30px;
+        font-weight: bold;
+    }
+    .btn-submit:hover { background: #d64933; }
+    .btn-submit:disabled { background: #ccc; cursor: not-allowed; }
+
+    /* REPORT AREA */
+    #report-section {
+        display: none; /* Ẩn lúc đầu */
+        margin-top: 30px;
+        padding: 20px;
+        background: #f0f4f8;
+        border: 2px dashed #264653;
+        border-radius: 10px;
+    }
+    textarea#final-report {
+        width: 100%;
+        height: 200px;
+        font-family: monospace;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        margin-bottom: 10px;
+        white-space: pre; /* Giữ định dạng xuống dòng */
+    }
+    .btn-copy {
+        background: #2A9D8F;
+        color: white;
+        padding: 12px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1em;
+        font-weight: bold;
+        display: inline-block;
+    }
+    .btn-copy:hover { background: #1f7a6f; }
+
+</style>
+</head>
+<body>
+
+<div id="timer-bar">Thời gian còn lại: <span id="time">20:00</span></div>
+
+<div class="container">
+    <h1>🔥 Thử thách nâng cao (30 câu)</h1>
+    <p style="text-align: center;">Lưu ý: Bạn có 20 phút. Hệ thống sẽ tự động tổng hợp lỗi sai sau khi bạn nộp bài.</p>
+    
+    <div id="quiz-container"></div>
+
+    <button class="btn-submit" onclick="submitQuiz()">Nộp Bài & Xem Báo Cáo</button>
+    
+    <div id="report-section">
+        <h3 style="color: var(--secondary); margin-top: 0;">📊 Báo Cáo Kết Quả</h3>
+        <p>Sao chép nội dung dưới đây và gửi cho chồng nhé!</p>
+        <textarea id="final-report" readonly></textarea>
+        <button class="btn-copy" onclick="copyReport()">📋 Sao chép báo cáo</button>
+        <span id="copy-status" style="margin-left: 10px; color: green; font-weight: bold; display: none;">Đã copy!</span>
+    </div>
+</div>
+
+<script>
+    // DỮ LIỆU CÂU HỎI (30 CÂU NÂNG CAO)
+    const questions = [
+        { q: "1. Everyone in my family _____ up early.", opts: ["wake", "wakes", "waking"], a: "wakes", exp: "Everyone (Đại từ bất định) là số ít." },
+        { q: "2. My husband usually _____ coffee, but today he _____ tea.", opts: ["drinks / drink", "drink / drinks", "drinks / drinks"], a: "drinks / drinks", exp: "Cả 2 vế chủ ngữ 'He' đều là số ít." },
+        { q: "3. Neither of my sisters _____ to cook.", opts: ["likes", "like", "liking"], a: "likes", exp: "'Neither of' đi với động từ số ít." },
+        { q: "4. She _____ goes to the gym on Sundays.", opts: ["never", "don't", "doesn't"], a: "never", exp: "Động từ 'goes' có 'es' nên không dùng don't/doesn't." },
+        { q: "5. Doing morning exercises _____ me feel energetic.", opts: ["make", "makes", "making"], a: "makes", exp: "Chủ ngữ là hành động (V-ing) -> Số ít." },
+        { q: "6. My brother and I _____ dinner every evening.", opts: ["prepares", "prepare", "preparing"], a: "prepare", exp: "My brother and I = We (Số nhiều)." },
+        { q: "7. The number of books on the shelf _____ increasing.", opts: ["is", "are", "be"], a: "is", exp: "'The number of' đi với số ít." },
+        { q: "8. He _____ watch TV in the morning.", opts: ["not", "don't", "doesn't"], a: "doesn't", exp: "He dùng trợ từ Doesn't." },
+        { q: "9. Where _____ your wife work?", opts: ["do", "does", "is"], a: "does", exp: "Your wife (She) mượn trợ từ Does." },
+        { q: "10. Nobody _____ perfect.", opts: ["is", "are", "am"], a: "is", exp: "Nobody là đại từ bất định số ít." },
+        { q: "11. She always _____ her keys.", opts: ["forget", "forgets", "forgetting"], a: "forgets", exp: "She + always + V(s)." },
+        { q: "12. Start your day with a smile, and life _____ better.", opts: ["become", "becomes", "becoming"], a: "becomes", exp: "Life (Cuộc sống) là danh từ số ít." },
+        { q: "13. There _____ a lot of traffic in the morning.", opts: ["is", "are", "be"], a: "is", exp: "Traffic là danh từ không đếm được -> Số ít." },
+        { q: "14. My glasses _____ on the table.", opts: ["is", "are", "be"], a: "are", exp: "Glasses (mắt kính) luôn là số nhiều." },
+        { q: "15. Before going to bed, he _____ his phone.", opts: ["check", "checks", "checking"], a: "checks", exp: "He (Số ít) -> Checks." },
+        { q: "16. Why _____ she look so tired?", opts: ["do", "does", "is"], a: "does", exp: "Câu hỏi với động từ thường 'look' mượn Does." },
+        { q: "17. Physics _____ my favorite subject.", opts: ["is", "are", "am"], a: "is", exp: "Môn học có 's' vẫn là số ít." },
+        { q: "18. He rarely _____ out for dinner.", opts: ["go", "goes", "going"], a: "goes", exp: "Rarely giống Always, chia động từ bình thường." },
+        { q: "19. The news _____ usually shocking.", opts: ["is", "are", "be"], a: "is", exp: "News là danh từ không đếm được -> Số ít." },
+        { q: "20. To succeed in life, one _____ to work hard.", opts: ["need", "needs", "needing"], a: "needs", exp: "One (một người nào đó) là số ít." },
+        { q: "21. Does he _____ breakfast at home?", opts: ["have", "has", "haves"], a: "have", exp: "Sau Does động từ về nguyên thể." },
+        { q: "22. Bread and butter _____ my favorite breakfast.", opts: ["is", "are", "be"], a: "is", exp: "Bread and butter là tên 1 món ăn -> Số ít." },
+        { q: "23. My family _____ waiting for me.", opts: ["is", "are", "be"], a: "is", exp: "My family (tập hợp) coi là 1 đơn vị -> Số ít." },
+        { q: "24. She _____ usually _____ up late.", opts: ["doesn't / wake", "don't / wake", "doesn't / wakes"], a: "doesn't / wake", exp: "She + doesn't + adv + V nguyên thể." },
+        { q: "25. Not only John but also his friends _____ football.", opts: ["play", "plays", "playing"], a: "play", exp: "Chia theo chủ ngữ gần nhất (his friends - số nhiều)." },
+        { q: "26. Checking emails _____ the first thing he does.", opts: ["is", "are", "be"], a: "is", exp: "V-ing làm chủ ngữ -> Số ít." },
+        { q: "27. John, along with his friends, _____ coming.", opts: ["is", "are", "be"], a: "is", exp: "Chia theo John (số ít), bỏ qua cụm 'along with'." },
+        { q: "28. Three hours _____ not enough to finish this.", opts: ["is", "are", "be"], a: "is", exp: "Khoảng thời gian là 1 đơn vị -> Số ít." },
+        { q: "29. Which of these sentences is CORRECT?", opts: ["He don't like coffee.", "He doesn't likes coffee.", "He doesn't like coffee."], a: "He doesn't like coffee.", exp: "Cấu trúc: He doesn't + V_inf." },
+        { q: "30. Choose the Natural Flow sentence:", opts: ["I wash my face and hit my teeth.", "I wash my face and brush my teeth.", "I clean face and brush teeth."], a: "I wash my face and brush my teeth.", exp: "Collocation: Brush my teeth." }
+    ];
+
+    const container = document.getElementById('quiz-container');
+    let timerInterval;
+    let totalTime = 20 * 60; 
+    let timeSpent = 0;
+
+    function initQuiz() {
+        questions.forEach((item, index) => {
+            let optionsHTML = '';
+            item.opts.forEach(opt => {
+                optionsHTML += `<label><input type="radio" name="q${index}" value="${opt}"> ${opt}</label>`;
+            });
+
+            container.innerHTML += `
+                <div class="question-card" id="card-${index}">
+                    <span class="question-text">${item.q}</span>
+                    <div class="options">${optionsHTML}</div>
+                    <div class="explanation-box" id="exp-${index}">
+                        <span class="exp-title">👨‍🏫 Giải thích:</span>
+                        <span class="exp-content">${item.exp}</span>
+                    </div>
+                </div>
+            `;
+        });
+        startTimer(totalTime);
+    }
+
+    function startTimer(duration) {
+        let timer = duration, minutes, seconds;
+        const display = document.getElementById('time');
+        const timerBar = document.getElementById('timer-bar');
+
+        timerInterval = setInterval(function () {
+            timeSpent = duration - timer; // Tính thời gian đã trôi qua
+            minutes = parseInt(timer / 60, 10);
+            seconds = parseInt(timer % 60, 10);
+
+            minutes = minutes < 10 ? "0" + minutes : minutes;
+            seconds = seconds < 10 ? "0" + seconds : seconds;
+
+            display.textContent = minutes + ":" + seconds;
+
+            if (timer < 60) timerBar.classList.add('warning');
+
+            if (--timer < 0) {
+                clearInterval(timerInterval);
+                alert("Hết giờ! Hệ thống sẽ tự nộp bài.");
+                submitQuiz();
+            }
+        }, 1000);
+    }
+
+    function formatTime(seconds) {
+        let m = Math.floor(seconds / 60);
+        let s = seconds % 60;
+        return `${m} phút ${s} giây`;
+    }
+
+    function submitQuiz() {
+        clearInterval(timerInterval);
+        let score = 0;
+        let reportText = `📝 KẾT QUẢ BÀI TẬP TUẦN 1 (NÂNG CAO)\n`;
+        reportText += `------------------------------\n`;
+        reportText += `⏰ Thời gian làm: ${formatTime(timeSpent)}\n`;
+        
+        let wrongAnswers = [];
+
+        questions.forEach((item, index) => {
+            const selected = document.querySelector(`input[name="q${index}"]:checked`);
+            const expBox = document.getElementById(`exp-${index}`);
+            expBox.style.display = 'block';
+
+            let userAnswer = selected ? selected.value : "Chưa chọn";
+            let isCorrect = false;
+
+            if (selected && selected.value === item.a) {
+                score++;
+                isCorrect = true;
+                expBox.innerHTML = `<span class="correct-text">✅ Đúng rồi!</span><br>` + expBox.innerHTML;
+                document.getElementById(`card-${index}`).style.borderLeftColor = "#2A9D8F";
+            } else {
+                expBox.innerHTML = `<span class="wrong-text">❌ Sai rồi. Đáp án là: ${item.a}</span><br>` + expBox.innerHTML;
+                document.getElementById(`card-${index}`).style.borderLeftColor = "#E76F51";
+                
+                // Thêm vào danh sách lỗi
+                wrongAnswers.push({
+                    idx: index + 1,
+                    q: item.q,
+                    user: userAnswer,
+                    correct: item.a,
+                    reason: item.exp
+                });
+            }
+        });
+
+        // Xây dựng nội dung báo cáo
+        reportText += `🏆 Điểm số: ${score} / ${questions.length}\n\n`;
+        
+        if (score === questions.length) {
+            reportText += `🌟 XUẤT SẮC! Vợ làm đúng hết rồi!`;
+        } else if (wrongAnswers.length > 0) {
+            reportText += `⚠️ CÁC LỖI CẦN REVIEW:\n`;
+            wrongAnswers.forEach(w => {
+                reportText += `❌ Câu ${w.idx}: ${w.q}\n`;
+                reportText += `   - Vợ chọn: ${w.user}\n`;
+                reportText += `   - Đáp án đúng: ${w.correct}\n`;
+                reportText += `   - Ghi nhớ: ${w.reason}\n\n`;
+            });
+        }
+
+        // Đánh giá
+        reportText += `------------------------------\n`;
+        if(score < 15) reportText += `💡 Đánh giá: Cần ôn lại kỹ quy tắc S-V Agreement.`;
+        else if(score < 25) reportText += `💡 Đánh giá: Khá tốt, nhưng chú ý các trường hợp đặc biệt (Everyone, V-ing).`;
+        else reportText += `💡 Đánh giá: Rất tốt! Đã sẵn sàng qua bài mới.`;
+
+        // Hiển thị báo cáo
+        const reportArea = document.getElementById('report-section');
+        const reportBox = document.getElementById('final-report');
+        reportBox.value = reportText;
+        reportArea.style.display = 'block';
+
+        // Disable nút nộp
+        document.querySelector('.btn-submit').disabled = true;
+        document.querySelector('.btn-submit').innerText = "Đã Nộp Bài";
+        document.getElementById('timer-bar').style.display = 'none';
+
+        // Scroll xuống báo cáo
+        reportArea.scrollIntoView({behavior: "smooth"});
+    }
+
+    function copyReport() {
+        const copyText = document.getElementById("final-report");
+        copyText.select();
+        copyText.setSelectionRange(0, 99999); /* Cho mobile */
+        navigator.clipboard.writeText(copyText.value).then(() => {
+            const status = document.getElementById("copy-status");
+            status.style.display = "inline";
+            setTimeout(() => { status.style.display = "none"; }, 2000);
+        });
+    }
+
+    initQuiz();
+
+</script>
+</body>
+</html>

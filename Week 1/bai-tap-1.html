@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Writing Coach: Week 1 Challenge</title>
+<style>
+    :root {
+        --primary: #2A9D8F; /* Màu xanh cổ vịt dịu mắt */
+        --secondary: #264653;
+        --accent: #E9C46A;
+        --bg: #F4F1DE;
+        --text: #333;
+    }
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: var(--bg);
+        color: var(--text);
+        line-height: 1.6;
+        margin: 0;
+        padding: 20px;
+    }
+    .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    h1 { color: var(--secondary); text-align: center; border-bottom: 2px solid var(--primary); padding-bottom: 10px; }
+    h2 { color: var(--primary); margin-top: 30px; }
+    .instruction { font-style: italic; color: #666; font-size: 0.9em; margin-bottom: 15px; }
+    
+    .question-card {
+        background: #f9f9f9;
+        border-left: 5px solid var(--primary);
+        padding: 15px;
+        margin-bottom: 15px;
+        border-radius: 4px;
+    }
+    .question-text { font-weight: bold; margin-bottom: 10px; display: block; }
+    
+    /* Level 1 Styles */
+    .options label {
+        display: inline-block;
+        margin-right: 15px;
+        cursor: pointer;
+        padding: 5px 10px;
+        background: #eee;
+        border-radius: 4px;
+        transition: 0.2s;
+    }
+    .options input[type="radio"] { margin-right: 5px; }
+    .options label:hover { background: #ddd; }
+
+    /* Level 2 & 3 Styles */
+    input[type="text"] {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        margin-top: 5px;
+        box-sizing: border-box;
+        font-family: monospace;
+    }
+
+    /* Feedback Styles */
+    .feedback {
+        margin-top: 8px;
+        font-size: 0.9em;
+        font-weight: bold;
+        display: none;
+    }
+    .correct { color: #2A9D8F; }
+    .incorrect { color: #E76F51; }
+    .explanation {
+        font-size: 0.85em;
+        color: #555;
+        margin-top: 4px;
+        font-style: italic;
+    }
+
+    .btn-submit {
+        display: block;
+        width: 100%;
+        padding: 15px;
+        background: var(--secondary);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.2em;
+        cursor: pointer;
+        margin-top: 30px;
+        transition: 0.3s;
+    }
+    .btn-submit:hover { background: var(--primary); }
+
+    .score-board {
+        text-align: center;
+        font-size: 1.5em;
+        margin-top: 20px;
+        font-weight: bold;
+        color: var(--secondary);
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Week 1: Daily Routines & Logic Check</h1>
+    <p style="text-align: center;">Chào mừng vợ yêu! Hãy hoàn thành 50 câu dưới đây để nắm chắc quy tắc S-V Agreement nhé.</p>
+
+    <h2>🟢 Level 1: Logic Check (Trắc nghiệm)</h2>
+    <p class="instruction">Chọn động từ đúng để hòa hợp với "Sếp" (Chủ ngữ).</p>
+    <div id="level1-container"></div>
+
+    <h2>🟡 Level 2: Error Correction (Sửa lỗi)</h2>
+    <p class="instruction">Tìm lỗi sai và <b>viết lại từ/cụm từ đúng</b> vào ô trống. (Ví dụ: sai "go", viết "goes").</p>
+    <div id="level2-container"></div>
+
+    <h2>🔴 Level 3: Fill in the Blank (Điền từ)</h2>
+    <p class="instruction">Chia động từ trong ngoặc ở thì Hiện tại đơn.</p>
+    <div id="level3-container"></div>
+
+    <button class="btn-submit" onclick="checkAnswers()">Nộp Bài & Xem Điểm</button>
+    <div class="score-board" id="scoreBoard"></div>
+</div>
+
+<script>
+    // DATA CÂU HỎI
+    const level1Data = [
+        {q: "1. My husband (wake / wakes) up at 6 AM.", opts: ["wake", "wakes"], a: "wakes"},
+        {q: "2. I (brush / brushes) my teeth right after waking up.", opts: ["brush", "brushes"], a: "brush"},
+        {q: "3. She (doesn’t / don’t) skip breakfast.", opts: ["doesn’t", "don’t"], a: "doesn’t"},
+        {q: "4. They (head / heads) to work by bus.", opts: ["head", "heads"], a: "head"},
+        {q: "5. My wife usually (sip / sips) a cup of coffee.", opts: ["sip", "sips"], a: "sips"},
+        {q: "6. We (unwind / unwinds) after a long day.", opts: ["unwind", "unwinds"], a: "unwind"},
+        {q: "7. He (don’t / doesn’t) like eating out.", opts: ["don’t", "doesn’t"], a: "doesn’t"},
+        {q: "8. The cat (sleep / sleeps) on the sofa.", opts: ["sleep", "sleeps"], a: "sleeps"},
+        {q: "9. You (need / needs) to get a good night's sleep.", opts: ["need", "needs"], a: "need"},
+        {q: "10. My son (watch / watches) TV in the evening.", opts: ["watch", "watches"], a: "watches"},
+        {q: "11. John and Mary (cook / cooks) dinner together.", opts: ["cook", "cooks"], a: "cook"},
+        {q: "12. Her sister (study / studies) English every night.", opts: ["study", "studies"], a: "studies"},
+        {q: "13. I always (prepare / prepares) my outfit.", opts: ["prepare", "prepares"], a: "prepare"},
+        {q: "14. It (rain / rains) a lot in the summer.", opts: ["rain", "rains"], a: "rains"},
+        {q: "15. My colleagues (doesn't / don't) go to the gym.", opts: ["doesn't", "don't"], a: "don't"}
+    ];
+
+    const level2Data = [
+        {q: "16. She go to work at 7:30 AM.", a: "goes", hint: "Ngôi 'She' cần thêm s/es"},
+        {q: "17. I wakes up early to do exercise.", a: "wake", hint: "Ngôi 'I' không thêm s"},
+        {q: "18. My father watchs TV.", a: "watches", hint: "Tận cùng 'ch' thêm es"},
+        {q: "19. He don’t have a light breakfast.", a: "doesn't", hint: "He đi với doesn't"},
+        {q: "20. The meeting start at 9:00 AM.", a: "starts", hint: "Meeting là số ít"},
+        {q: "21. She wash teeth twice a day.", a: "brushes her teeth", hint: "Dùng cụm 'brushes her teeth'"},
+        {q: "22. He doesn't heads to work by car.", a: "head", hint: "Sau doesn't động từ nguyên thể"},
+        {q: "23. My mother cook a warm meal.", a: "cooks", hint: "Mother = She"},
+        {q: "24. They plays phone at night.", a: "use their phones", hint: "Dùng cụm 'use their phones'"},
+        {q: "25. Everyone love pizza.", a: "loves", hint: "Everyone chia số ít"},
+        {q: "26. My boss doesn't agrees.", a: "agree", hint: "Bỏ s sau doesn't"},
+        {q: "27. She relaxs by listening to music.", a: "relaxes", hint: "x thêm es"},
+        {q: "28. We often has dinner out.", a: "have", hint: "We đi với have"},
+        {q: "29. Peter study hard.", a: "studies", hint: "y đổi thành ies"},
+        {q: "30. I watches TV everyday.", a: "watch", hint: "I giữ nguyên"}
+    ];
+
+    const level3Data = [
+        {q: "31. My husband (wake) _____ up at 5:30.", a: "wakes"},
+        {q: "32. First, he (brush) _____ his teeth.", a: "brushes"},
+        {q: "33. And he (wash) _____ his face.", a: "washes"},
+        {q: "34. He never (skip) _____ breakfast.", a: "skips"},
+        {q: "35. He (think) _____ it is important.", a: "thinks"},
+        {q: "36. He (have) _____ breakfast alone.", a: "has"},
+        {q: "37. He usually (check) _____ emails.", a: "checks"},
+        {q: "38. Finally, he (head) _____ to work.", a: "heads"},
+        {q: "39. I (finish) _____ work at 5:00 PM.", a: "finish"},
+        {q: "40. My husband usually (arrive) _____ later.", a: "arrives"},
+        {q: "41. We (not / cook) _____ separately.", a: "don't cook"},
+        {q: "42. We (prepare) _____ dinner together.", a: "prepare"},
+        {q: "43. He (wash) _____ the dishes.", a: "washes"},
+        {q: "44. I (unwind) _____ on the sofa.", a: "unwind"},
+        {q: "45. He (not / want) _____ to watch TV.", a: "doesn't want"},
+        {q: "46. So he (read) _____ a book.", a: "reads"},
+        {q: "47. We both (avoid) _____ using phones.", a: "avoid"},
+        {q: "48. We (try) _____ to sleep early.", a: "try"},
+        {q: "49. To (get) _____ a good night's sleep.", a: "get"},
+        {q: "50. It (make) _____ us healthy.", a: "makes"}
+    ];
+
+    // RENDER GIAO DIỆN
+    function render() {
+        // Level 1
+        const l1 = document.getElementById('level1-container');
+        level1Data.forEach((item, index) => {
+            l1.innerHTML += `
+                <div class="question-card">
+                    <span class="question-text">${item.q}</span>
+                    <div class="options">
+                        <label><input type="radio" name="q1_${index}" value="${item.opts[0]}"> ${item.opts[0]}</label>
+                        <label><input type="radio" name="q1_${index}" value="${item.opts[1]}"> ${item.opts[1]}</label>
+                    </div>
+                    <div class="feedback" id="fb1_${index}"></div>
+                </div>
+            `;
+        });
+
+        // Level 2
+        const l2 = document.getElementById('level2-container');
+        level2Data.forEach((item, index) => {
+            l2.innerHTML += `
+                <div class="question-card">
+                    <span class="question-text">${item.q}</span>
+                    <input type="text" id="q2_${index}" placeholder="Nhập từ/cụm từ đúng...">
+                    <div class="feedback" id="fb2_${index}"></div>
+                </div>
+            `;
+        });
+
+        // Level 3
+        const l3 = document.getElementById('level3-container');
+        level3Data.forEach((item, index) => {
+            l3.innerHTML += `
+                <div class="question-card">
+                    <span class="question-text">${item.q}</span>
+                    <input type="text" id="q3_${index}" placeholder="Chia động từ...">
+                    <div class="feedback" id="fb3_${index}"></div>
+                </div>
+            `;
+        });
+    }
+
+    // CHẤM ĐIỂM
+    function checkAnswers() {
+        let score = 0;
+        let total = level1Data.length + level2Data.length + level3Data.length;
+
+        // Check Level 1
+        level1Data.forEach((item, index) => {
+            const selected = document.querySelector(`input[name="q1_${index}"]:checked`);
+            const fb = document.getElementById(`fb1_${index}`);
+            if (selected) {
+                if (selected.value === item.a) {
+                    score++;
+                    fb.innerHTML = "✅ Chính xác!";
+                    fb.className = "feedback correct";
+                } else {
+                    fb.innerHTML = `❌ Sai rồi. Đáp án là: <b>${item.a}</b>`;
+                    fb.className = "feedback incorrect";
+                }
+            } else {
+                fb.innerHTML = "⚠️ Chưa chọn đáp án";
+                fb.className = "feedback incorrect";
+            }
+            fb.style.display = "block";
+        });
+
+        // Check Level 2
+        level2Data.forEach((item, index) => {
+            const input = document.getElementById(`q2_${index}`).value.trim();
+            const fb = document.getElementById(`fb2_${index}`);
+            // So sánh tương đối (không phân biệt hoa thường)
+            if (input.toLowerCase() === item.a.toLowerCase()) {
+                score++;
+                fb.innerHTML = "✅ Tuyệt vời!";
+                fb.className = "feedback correct";
+            } else {
+                fb.innerHTML = `❌ Đáp án đúng: <b>${item.a}</b> <div class='explanation'>(${item.hint})</div>`;
+                fb.className = "feedback incorrect";
+            }
+            fb.style.display = "block";
+        });
+
+        // Check Level 3
+        level3Data.forEach((item, index) => {
+            const input = document.getElementById(`q3_${index}`).value.trim();
+            const fb = document.getElementById(`fb3_${index}`);
+            // Xử lý đặc biệt cho câu 'don't' để chấp nhận 'do not' nếu cần, ở đây mình check đơn giản
+            if (input.toLowerCase() === item.a.toLowerCase()) {
+                score++;
+                fb.innerHTML = "✅ Chuẩn!";
+                fb.className = "feedback correct";
+            } else {
+                fb.innerHTML = `❌ Đáp án đúng: <b>${item.a}</b>`;
+                fb.className = "feedback incorrect";
+            }
+            fb.style.display = "block";
+        });
+
+        const resultBoard = document.getElementById('scoreBoard');
+        resultBoard.innerHTML = `Điểm của vợ: ${score} / ${total}`;
+        
+        if(score == total) alert("Chúc mừng! Vợ đã tốt nghiệp tuần 1 xuất sắc!");
+        else alert(`Đã chấm xong! Được ${score}/${total} điểm. Hãy xem lại các câu sai nhé.`);
+    }
+
+    // Run
+    render();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mini Game: Kẻ Giả Mạo</title>
+<style>
+    body { font-family: 'Arial', sans-serif; background: #222; color: #fff; text-align: center; padding: 20px; }
+    .card { background: #333; max-width: 400px; margin: 20px auto; padding: 20px; border-radius: 10px; border: 2px solid #555; }
+    .word { font-size: 2em; font-weight: bold; margin-bottom: 20px; color: #ffcc00; }
+    .btn { padding: 15px 30px; font-size: 1.2em; margin: 5px; cursor: pointer; border: none; border-radius: 5px; font-weight: bold; width: 45%; }
+    .btn-singular { background: #e63946; color: white; } /* Đỏ cho số ít */
+    .btn-plural { background: #2a9d8f; color: white; } /* Xanh cho số nhiều */
+    .result { margin-top: 15px; font-size: 1.2em; min-height: 30px; }
+    .score { font-size: 1.5em; color: #aaa; margin-bottom: 10px; }
+</style>
+</head>
+<body>
+
+<h1>🕵️‍♂️ KẺ GIẢ MẠO</h1>
+<p>Chọn Số Ít (IS) hay Số Nhiều (ARE)?</p>
+
+<div class="score">Điểm: <span id="score">0</span></div>
+
+<div class="card">
+    <div class="word" id="currentWord">???</div>
+    <div class="result" id="resultMsg"></div>
+    <div style="margin-top:20px;">
+        <button class="btn btn-singular" onclick="checkAnswer('singular')">SỐ ÍT (IS)</button>
+        <button class="btn btn-plural" onclick="checkAnswer('plural')">SỐ NHIỀU (ARE)</button>
+    </div>
+</div>
+
+<script>
+    // DANH SÁCH TỪ LỪA ĐẢO
+    const blacklist = [
+        { word: "The police", type: "plural", exp: "Cảnh sát (Lực lượng) -> Số nhiều" },
+        { word: "News", type: "singular", exp: "Tin tức (Không đếm được) -> Số ít" },
+        { word: "People", type: "plural", exp: "Mọi người -> Số nhiều" },
+        { word: "Physics", type: "singular", exp: "Tên môn học -> Số ít" },
+        { word: "Jeans", type: "plural", exp: "Quần 2 ống -> Số nhiều" },
+        { word: "The cattle", type: "plural", exp: "Gia súc (Đàn) -> Số nhiều" },
+        { word: "Mathematics", type: "singular", exp: "Tên môn học -> Số ít" },
+        { word: "Scissors", type: "plural", exp: "Cái kéo (2 lưỡi) -> Số nhiều" },
+        { word: "The poor", type: "plural", exp: "Người nghèo (Tầng lớp) -> Số nhiều" },
+        { word: "Measles", type: "singular", exp: "Tên bệnh (Sởi) -> Số ít" },
+        { word: "Children", type: "plural", exp: "Trẻ em (Nhiều đứa) -> Số nhiều" },
+        { word: "A pair of jeans", type: "singular", exp: "Một cái quần (A pair) -> Số ít" }
+    ];
+
+    let currentIdx = 0;
+    let score = 0;
+
+    function loadWord() {
+        if (currentIdx >= blacklist.length) {
+            document.querySelector('.card').innerHTML = `<h2>🎉 HOÀN THÀNH!</h2><p>Bạn đã thuộc lòng danh sách đen!</p>`;
+            return;
+        }
+        document.getElementById('currentWord').innerText = blacklist[currentIdx].word;
+        document.getElementById('resultMsg').innerText = "";
+    }
+
+    function checkAnswer(choice) {
+        const item = blacklist[currentIdx];
+        const msg = document.getElementById('resultMsg');
+        
+        if (choice === item.type) {
+            score++;
+            document.getElementById('score').innerText = score;
+            msg.innerHTML = `<span style="color:#4cc9f0">✅ Chính xác! (${item.exp})</span>`;
+            setTimeout(() => {
+                currentIdx++;
+                loadWord();
+            }, 1500);
+        } else {
+            msg.innerHTML = `<span style="color:#ff5c5c">❌ Sai rồi! (${item.exp})</span>`;
+        }
+    }
+
+    loadWord();
+</script>
+
+</body>
+</html>
