@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WARM UP: WEEK 1 REVIEW</title>
+<style>
+    body { font-family: sans-serif; background: #f0f8ff; padding: 20px; }
+    .container { max-width: 700px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+    h1 { color: #0077b6; text-align: center; }
+    .question { margin-bottom: 15px; padding: 10px; border-left: 4px solid #0077b6; background: #e0fbfc; }
+    button { background: #0077b6; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 1.1em; width: 100%; margin-top: 20px; }
+    button:hover { background: #023e8a; }
+    .result { margin-top: 20px; font-weight: bold; white-space: pre-wrap; }
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>🚀 KHỞI ĐỘNG: CHECK LOGIC</h1>
+    <p><i>Mục tiêu: Đúng ít nhất 16/20 câu.</i></p>
+    <div id="quiz"></div>
+    <button onclick="submitQuiz()">NỘP BÀI</button>
+    <div id="result" class="result"></div>
+</div>
+<script>
+    const questions = [
+        { q: "1. The police _____ coming.", opts: ["is", "are"], a: "are" },
+        { q: "2. A number of students _____ late.", opts: ["is", "are"], a: "are" },
+        { q: "3. The number of books _____ 500.", opts: ["is", "are"], a: "is" },
+        { q: "4. Does she _____ yoga?", opts: ["do", "does", "doing"], a: "do" },
+        { q: "5. He doesn't _____ coffee.", opts: ["likes", "like"], a: "like" },
+        { q: "6. Everyone _____ happy.", opts: ["is", "are"], a: "is" },
+        { q: "7. My glasses _____ broken.", opts: ["is", "are"], a: "are" },
+        { q: "8. Physics _____ difficult.", opts: ["is", "are"], a: "is" },
+        { q: "9. One of my friends _____ here.", opts: ["is", "are"], a: "is" },
+        { q: "10. Neither John nor I _____ wrong.", opts: ["am", "is", "are"], a: "am" },
+        { q: "11. Bread and butter _____ tasty.", opts: ["is", "are"], a: "is" },
+        { q: "12. Ten dollars _____ enough.", opts: ["is", "are"], a: "is" },
+        { q: "13. There _____ a pen and two books.", opts: ["is", "are"], a: "is" },
+        { q: "14. She always _____ up early.", opts: ["get", "gets"], a: "gets" },
+        { q: "15. Watching TV _____ boring.", opts: ["is", "are"], a: "is" },
+        { q: "16. My family _____ big.", opts: ["is", "are"], a: "is" },
+        { q: "17. Your jeans _____ nice.", opts: ["looks", "look"], a: "look" },
+        { q: "18. The news _____ good.", opts: ["is", "are"], a: "is" },
+        { q: "19. Either you or he _____ to go.", opts: ["has", "have"], a: "has" },
+        { q: "20. I usually _____ my teeth.", opts: ["brush", "brushes"], a: "brush" }
+    ];
+
+    function render() {
+        let html = "";
+        questions.forEach((q, i) => {
+            html += `<div class='question'><p><b>${i+1}. ${q.q}</b></p>`;
+            q.opts.forEach(opt => html += `<label><input type='radio' name='q${i}' value='${opt}'> ${opt}</label> &nbsp;&nbsp;`);
+            html += `</div>`;
+        });
+        document.getElementById('quiz').innerHTML = html;
+    }
+
+    function submitQuiz() {
+        let score = 0;
+        let msg = "";
+        questions.forEach((q, i) => {
+            let selected = document.querySelector(`input[name='q${i}']:checked`);
+            if (selected && selected.value === q.a) score++;
+            else msg += `❌ Câu ${i+1}: Đáp án là '${q.a}'\n`;
+        });
+        document.getElementById('result').innerText = `Kết quả: ${score}/20\n\n${msg}`;
+        if(score >= 16) alert("Đạt yêu cầu! Qua bài mới thôi!");
+        else alert("Cần ôn lại các lỗi sai nhé!");
+    }
+    render();
+</script>
+</body>
+</html>

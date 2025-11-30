@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 2: Past Simple Challenge</title>
+<style>
+    :root {
+        --primary: #bc4749; /* Đỏ đất (Màu hoài niệm quá khứ) */
+        --secondary: #386641;
+        --bg: #f2e8cf;
+        --text: #333;
+    }
+    body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); padding: 20px; padding-top: 60px; }
+    .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); display: none; }
+    
+    #start-screen { max-width: 600px; margin: 50px auto; background: white; padding: 40px; text-align: center; border-radius: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+    .btn-main { background: var(--primary); color: white; border: none; padding: 15px 30px; font-size: 1.5em; border-radius: 50px; cursor: pointer; font-weight: bold; }
+    .btn-main:hover { transform: scale(1.05); }
+
+    .question-card { background: #fff; border-left: 5px solid var(--primary); padding: 15px; margin-bottom: 15px; border-radius: 5px; border: 1px solid #ddd; }
+    .q-text { font-weight: bold; margin-bottom: 10px; display: block; font-size: 1.1em; }
+    
+    .explanation { display: none; margin-top: 10px; padding: 10px; background: #e6f2e6; border-radius: 5px; font-size: 0.9em; }
+    .correct { color: #2a9d8f; font-weight: bold; }
+    .wrong { color: #d62828; font-weight: bold; }
+
+    #timer-bar { position: fixed; top: 0; left: 0; width: 100%; background: var(--secondary); color: white; text-align: center; padding: 15px 0; font-size: 1.5em; font-weight: bold; z-index: 999; display: none; }
+    
+    input[type="text"] { padding: 8px; width: 80%; border: 1px solid #ccc; border-radius: 4px; font-family: monospace; }
+</style>
+</head>
+<body>
+
+<div id="timer-bar">Thời gian: <span id="time">20:00</span></div>
+
+<div id="start-screen">
+    <h1>📜 THỬ THÁCH: QUÁ KHỨ ĐƠN</h1>
+    <p>40 Câu hỏi - 20 Phút</p>
+    <p><i>Nội dung: Xoay quanh câu chuyện "Tuần lễ khủng hoảng" của vợ.</i></p>
+    <ul style="text-align: left; display: inline-block;">
+        <li>⚠️ Động từ Bất quy tắc (Go -> Went, Buy -> Bought)</li>
+        <li>⚠️ Động từ Tobe (Was/Were)</li>
+        <li>⚠️ Trợ động từ (Did/Didn't)</li>
+    </ul>
+    <br><br>
+    <button class="btn-main" onclick="startQuiz()">BẮT ĐẦU VIẾT TRUYỆN</button>
+</div>
+
+<div class="container" id="quiz-content">
+    <h2 style="text-align: center; color: var(--primary);">📝 BÀI TẬP THỰC HÀNH</h2>
+    <div id="quiz-container"></div>
+    <button class="btn-main" style="width: 100%; margin-top: 20px; font-size: 1.2em;" onclick="submitQuiz()">NỘP BÀI</button>
+    
+    <div id="result-area" style="margin-top: 30px; display: none;">
+        <h3>📊 KẾT QUẢ: <span id="score-display"></span></h3>
+        <textarea id="report-text" style="width: 100%; height: 200px; font-family: monospace;" readonly></textarea>
+    </div>
+</div>
+
+<script>
+    const questions = [
+        // PART 1: TOBE (Was/Were) - Mô tả trạng thái
+        { q: "1. Last week _____ (be) a stressful week for me.", type: "fill", a: "was", exp: "Tuần trước (số ít) -> Was." },
+        { q: "2. My health _____ (not / be) good.", type: "fill", a: "was not", exp: "Sức khỏe (số ít) -> Was not (hoặc Wasn't)." },
+        { q: "3. The weather in the countryside _____ (be) pleasant.", type: "fill", a: "was", exp: "Thời tiết (số ít) -> Was." },
+        { q: "4. We _____ (be) very tired after work.", type: "fill", a: "were", exp: "We (số nhiều) -> Were." },
+        { q: "5. Everything _____ (be) chaotic.", type: "fill", a: "was", exp: "Everything (số ít) -> Was." },
+        { q: "6. It _____ (be) a difficult time.", type: "fill", a: "was", exp: "It -> Was." },
+        { q: "7. Where _____ (be) you yesterday?", type: "fill", a: "were", exp: "You -> Were." },
+        { q: "8. The trip _____ (be) smooth.", type: "fill", a: "was", exp: "The trip -> Was." },
+        { q: "9. My husband's work _____ (be) urgent.", type: "fill", a: "was", exp: "Work (số ít) -> Was." },
+        { q: "10. _____ (be) you happy with the trip?", type: "fill", a: "were", exp: "Câu hỏi với You -> Were." },
+
+        // PART 2: REGULAR & IRREGULAR VERBS (Hành động)
+        { q: "11. My husband _____ (decide) to take me home.", type: "fill", a: "decided", exp: "Quy tắc: Thêm 'd' vào decide." },
+        { q: "12. We _____ (buy) a new washing machine.", type: "fill", a: "bought", exp: "Bất quy tắc: Buy -> Bought." },
+        { q: "13. The old machine _____ (break) down.", type: "fill", a: "broke", exp: "Bất quy tắc: Break -> Broke." },
+        { q: "14. We _____ (go) to our hometown.", type: "fill", a: "went", exp: "Bất quy tắc: Go -> Went." },
+        { q: "15. I _____ (feel) very stressed.", type: "fill", a: "felt", exp: "Bất quy tắc: Feel -> Felt." },
+        { q: "16. We _____ (want) to balance everything.", type: "fill", a: "wanted", exp: "Quy tắc: Want -> Wanted." },
+        { q: "17. He _____ (take) me to the countryside.", type: "fill", a: "took", exp: "Bất quy tắc: Take -> Took." },
+        { q: "18. We _____ (have) a lot of problems.", type: "fill", a: "had", exp: "Bất quy tắc: Have -> Had." },
+        { q: "19. I _____ (spend) time resting.", type: "fill", a: "spent", exp: "Bất quy tắc: Spend -> Spent." },
+        { q: "20. They _____ (visit) their parents.", type: "fill", a: "visited", exp: "Quy tắc: Visit -> Visited." },
+
+        // PART 3: NEGATIVE & QUESTION (Did/Didn't)
+        { q: "21. I _____ (not / cook) dinner yesterday.", type: "fill", a: "did not cook", exp: "Phủ định: Didn't + V nguyên thể." },
+        { q: "22. We _____ (not / have) much time.", type: "fill", a: "did not have", exp: "Phủ định: Didn't + V nguyên thể." },
+        { q: "23. _____ (do) he go to work yesterday?", type: "fill", a: "did", exp: "Câu hỏi: Mượn trợ từ Did." },
+        { q: "24. She _____ (not / buy) the red dress.", type: "fill", a: "did not buy", exp: "Phủ định: Didn't + Buy." },
+        { q: "25. Why _____ (do) you leave early?", type: "fill", a: "did", exp: "Câu hỏi: Did." },
+        { q: "26. They _____ (not / know) the way.", type: "fill", a: "did not know", exp: "Phủ định: Didn't Know." },
+        { q: "27. _____ (do) you sleep well last night?", type: "fill", a: "did", exp: "Câu hỏi Yes/No dùng Did." },
+        { q: "28. He _____ (not / say) anything.", type: "fill", a: "did not say", exp: "Phủ định: Didn't Say." },
+        { q: "29. We _____ (not / use) the old machine.", type: "fill", a: "did not use", exp: "Phủ định: Didn't Use." },
+        { q: "30. What _____ (do) you do last weekend?", type: "fill", a: "did", exp: "Câu hỏi Wh- dùng Did." },
+
+        // PART 4: MIXED & LOGIC (Trắc nghiệm chọn A/B/C)
+        { q: "31. She _____ very tired, so she _____ to bed early.", opts: ["was / went", "were / go", "is / went"], a: "was / went", exp: "Cô ấy mệt (Was) -> Đi ngủ (Went)." },
+        { q: "32. I _____ breakfast this morning.", opts: ["didn't had", "didn't have", "don't have"], a: "didn't have", exp: "Sau Didn't là Have nguyên thể." },
+        { q: "33. When _____ you _____ the car?", opts: ["did / bought", "did / buy", "do / bought"], a: "did / buy", exp: "Câu hỏi: Did ... Buy (nguyên thể)." },
+        { q: "34. The washing machine _____ modern.", opts: ["is", "was", "did"], a: "was", exp: "Mô tả đặc điểm trong quá khứ dùng Was." },
+        { q: "35. We _____ home because it _____ raining.", opts: ["stayed / was", "stay / is", "stayed / were"], a: "stayed / was", exp: "Ở nhà (Stayed) vì trời mưa (Was)." },
+        { q: "36. CHỌN CÂU ĐÚNG:", opts: ["He goed to work.", "He went to work.", "He went to works."], a: "He went to work.", exp: "Go -> Went." },
+        { q: "37. CHỌN CÂU ĐÚNG:", opts: ["Did you saw him?", "Did you see him?", "Do you saw him?"], a: "Did you see him?", exp: "Did + See (nguyên thể)." },
+        { q: "38. CHỌN CÂU ĐÚNG:", opts: ["I wasn't happy.", "I didn't happy.", "I not happy."], a: "I wasn't happy.", exp: "Tính từ Happy phải đi với Was/Were." },
+        { q: "39. Last week, I _____ (make) a cake.", opts: ["maked", "made", "make"], a: "made", exp: "Make -> Made." },
+        { q: "40. Choose Natural Flow sentence:", opts: ["I had a crisis week.", "I had a stressful week.", "My week was crisis."], a: "I had a stressful week.", exp: "Crisis thường dùng cho khủng hoảng kinh tế/lớn. Cá nhân dùng Stressful." }
+    ];
+
+    function startQuiz() {
+        document.getElementById('start-screen').style.display = 'none';
+        document.getElementById('quiz-content').style.display = 'block';
+        document.getElementById('timer-bar').style.display = 'block';
+        renderQuiz();
+        startTimer(20 * 60);
+    }
+
+    function renderQuiz() {
+        const container = document.getElementById('quiz-container');
+        questions.forEach((item, index) => {
+            let content = `<div class="question-card" id="card-${index}">`;
+            content += `<span class="q-text">${item.q}</span>`;
+            
+            if (item.type === "fill") {
+                content += `<input type="text" id="ans-${index}" placeholder="Nhập đáp án...">`;
+            } else {
+                item.opts.forEach(opt => {
+                    content += `<label style="display:block; margin:5px 0;"><input type="radio" name="ans-${index}" value="${opt}"> ${opt}</label>`;
+                });
+            }
+            content += `<div class="explanation" id="exp-${index}"></div></div>`;
+            container.innerHTML += content;
+        });
+    }
+
+    function startTimer(duration) {
+        let timer = duration, minutes, seconds;
+        let interval = setInterval(function () {
+            minutes = parseInt(timer / 60, 10);
+            seconds = parseInt(timer % 60, 10);
+            minutes = minutes < 10 ? "0" + minutes : minutes;
+            seconds = seconds < 10 ? "0" + seconds : seconds;
+            document.getElementById('time').textContent = minutes + ":" + seconds;
+            if (--timer < 0) {
+                clearInterval(interval);
+                submitQuiz();
+            }
+        }, 1000);
+    }
+
+    function submitQuiz() {
+        let score = 0;
+        let report = "";
+        
+        questions.forEach((item, index) => {
+            let userAns = "";
+            let isCorrect = false;
+            let expBox = document.getElementById(`exp-${index}`);
+            
+            if (item.type === "fill") {
+                let input = document.getElementById(`ans-${index}`);
+                userAns = input.value.trim().toLowerCase();
+                // Chấp nhận didn't hoặc did not
+                let correctAns = item.a.toLowerCase();
+                if (userAns === correctAns || userAns === correctAns.replace("did not", "didn't") || userAns === correctAns.replace("was not", "wasn't")) {
+                    isCorrect = true;
+                }
+            } else {
+                let selected = document.querySelector(`input[name="ans-${index}"]:checked`);
+                userAns = selected ? selected.value : "Chưa chọn";
+                if (userAns === item.a) isCorrect = true;
+            }
+
+            expBox.style.display = "block";
+            if (isCorrect) {
+                score++;
+                expBox.innerHTML = `<span class="correct">✅ Đúng!</span> ${item.exp}`;
+                document.getElementById(`card-${index}`).style.borderLeftColor = "#2a9d8f";
+            } else {
+                expBox.innerHTML = `<span class="wrong">❌ Sai. Đáp án: ${item.a}</span><br>${item.exp}`;
+                document.getElementById(`card-${index}`).style.borderLeftColor = "#d62828";
+                report += `Câu ${index+1}: Sai. (Đáp án: ${item.a})\n`;
+            }
+        });
+
+        document.getElementById('score-display').innerText = `${score}/40`;
+        document.getElementById('report-text').value = report || "Xuất sắc! Không sai câu nào.";
+        document.getElementById('result-area').style.display = 'block';
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+</script>
+</body>
+</html>

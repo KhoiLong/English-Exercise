@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 2: Mixed Practice (Vocab & Grammar)</title>
+<style>
+    :root {
+        --primary: #d00000; /* Màu đỏ gạch */
+        --secondary: #ffba08; /* Màu vàng nghệ */
+        --dark: #370617;
+        --light: #fff8f0;
+        --boss: #6a040f; /* Màu Boss cuối */
+    }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--light); color: var(--dark); padding: 20px; line-height: 1.6; }
+    .container { max-width: 800px; margin: 0 auto; background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); display: none; }
+    
+    /* Start Screen */
+    #start-screen { max-width: 600px; margin: 50px auto; background: white; padding: 40px; text-align: center; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); border-top: 10px solid var(--primary); }
+    .btn-start { background: var(--primary); color: white; border: none; padding: 15px 40px; font-size: 1.3em; font-weight: bold; border-radius: 50px; cursor: pointer; transition: 0.3s; box-shadow: 0 5px 15px rgba(208, 0, 0, 0.3); }
+    .btn-start:hover { transform: translateY(-3px); background: #9d0208; }
+
+    /* Question Cards */
+    .question-card { background: #fff; border: 1px solid #eee; border-left: 5px solid var(--secondary); padding: 20px; margin-bottom: 20px; border-radius: 8px; }
+    .boss-card { border-left: 5px solid var(--boss); background: #fff0f3; } /* Style cho câu khó */
+    .boss-badge { background: var(--boss); color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.8em; font-weight: bold; margin-bottom: 5px; display: inline-block; }
+    
+    .question-text { font-size: 1.1em; font-weight: bold; margin-bottom: 15px; display: block; }
+    .options label { display: block; margin-bottom: 8px; cursor: pointer; padding: 8px; border-radius: 5px; transition: 0.2s; }
+    .options label:hover { background: #fdf0d5; }
+    .options input { margin-right: 10px; }
+
+    /* Feedback */
+    .feedback { display: none; margin-top: 10px; font-size: 0.95em; padding: 10px; background: #e9ecef; border-radius: 5px; }
+    .correct { color: #2a9d8f; font-weight: bold; }
+    .wrong { color: #d00000; font-weight: bold; }
+
+    /* Timer */
+    #timer-bar { position: fixed; top: 0; left: 0; width: 100%; background: var(--dark); color: white; text-align: center; padding: 10px 0; font-weight: bold; z-index: 1000; display: none; }
+
+    .btn-submit { width: 100%; padding: 15px; background: var(--dark); color: white; border: none; font-size: 1.2em; font-weight: bold; border-radius: 10px; cursor: pointer; margin-top: 20px; }
+    .btn-submit:hover { background: #03071e; }
+
+    /* Report */
+    #report-area { display: none; margin-top: 30px; border-top: 2px dashed #ccc; padding-top: 20px; }
+</style>
+</head>
+<body>
+
+<div id="timer-bar">TIME: <span id="time">20:00</span></div>
+
+<div id="start-screen">
+    <h1>📚 MIXED PRACTICE: WEEK 2</h1>
+    <p><b>40 Câu hỏi | 20 Phút</b></p>
+    <p>Nội dung: Từ vựng câu chuyện & Ngữ pháp Quá khứ.</p>
+    <p style="color: var(--boss); font-weight: bold;">⚠️ Lưu ý: 10 câu cuối là Vùng Nâng Cao (Advanced Zone)!</p>
+    <button class="btn-start" onclick="startQuiz()">BẮT ĐẦU</button>
+</div>
+
+<div class="container" id="quiz-content">
+    <h2 style="text-align: center; color: var(--dark);">BÀI TẬP TỔNG HỢP</h2>
+    <div id="quiz-container"></div>
+    <button class="btn-submit" onclick="submitQuiz()">NỘP BÀI</button>
+    
+    <div id="report-area">
+        <h3>📊 KẾT QUẢ CHI TIẾT</h3>
+        <div id="score-display" style="font-size: 1.5em; font-weight: bold; margin-bottom: 10px;"></div>
+        <textarea id="final-report" style="width: 100%; height: 200px; font-family: monospace; padding: 10px;" readonly></textarea>
+    </div>
+</div>
+
+<script>
+    const questions = [
+        // --- PART 1: VOCABULARY (Theo cốt truyện) ---
+        { q: "1. Last week was very _____ because of my work.", opts: ["happy", "stressful", "easy"], a: "stressful", exp: "Stressful (Áp lực/Khủng hoảng)." },
+        { q: "2. My husband's work was _____ up.", opts: ["piling", "running", "going"], a: "piling", exp: "Piling up: Chất đống (Công việc gấp rút)." },
+        { q: "3. Everything was _____ until we went home.", opts: ["chaotic", "clean", "smooth"], a: "chaotic", exp: "Chaotic: Rối tung/Hỗn loạn." },
+        { q: "4. The washing machine _____ down last Monday.", opts: ["broke", "fell", "dropped"], a: "broke", exp: "Break down: Bị hư hỏng." },
+        { q: "5. We _____ a new machine immediately.", opts: ["sold", "purchased", "threw"], a: "purchased", exp: "Purchase = Buy (Mua/Tậu)." },
+        { q: "6. The weather in the countryside was _____.", opts: ["angry", "pleasant", "stressful"], a: "pleasant", exp: "Pleasant: Dễ chịu/Mát mẻ." },
+        { q: "7. We wanted to _____ the most of our time.", opts: ["do", "make", "take"], a: "make", exp: "Cụm: Make the most of (Tận dụng tối đa)." },
+        { q: "8. We tried to _____ everything in our life.", opts: ["balance", "break", "stress"], a: "balance", exp: "Balance: Cân bằng." },
+        { q: "9. The military service checkup was _____.", opts: ["going", "approaching", "leaving"], a: "approaching", exp: "Approaching: Đang đến gần/Cận kề." },
+        { q: "10. It was a _____ week, but we are okay now.", opts: ["tough", "smooth", "funny"], a: "tough", exp: "Tough = Difficult (Khó khăn/Khủng hoảng)." },
+
+        // --- PART 2: GRAMMAR (Was/Were vs Did) ---
+        { q: "11. I _____ tired yesterday.", opts: ["was", "did", "were"], a: "was", exp: "Tính từ (Tired) -> Dùng Was." },
+        { q: "12. _____ you go to work?", opts: ["Were", "Did", "Was"], a: "Did", exp: "Động từ (Go) -> Dùng Did." },
+        { q: "13. She _____ not cook dinner.", opts: ["did", "was", "were"], a: "did", exp: "Động từ (Cook) -> Dùng Did not." },
+        { q: "14. They _____ at the party last night.", opts: ["did", "were", "went"], a: "were", exp: "Ở tại đâu (At the party) -> Dùng Were." },
+        { q: "15. _____ you happy with the trip?", opts: ["Did", "Were", "Was"], a: "Were", exp: "Tính từ (Happy) -> Dùng Were." },
+        { q: "16. We _____ not buy the car.", opts: ["were", "did", "was"], a: "did", exp: "Động từ (Buy) -> Dùng Did not." },
+        { q: "17. It _____ a sunny day.", opts: ["was", "did", "were"], a: "was", exp: "Mô tả thời tiết -> Dùng Was." },
+        { q: "18. Why _____ you cry?", opts: ["were", "did", "was"], a: "did", exp: "Động từ (Cry) -> Dùng Did." },
+        { q: "19. My phone _____ broken.", opts: ["was", "did", "were"], a: "was", exp: "Tính từ (Broken) -> Dùng Was." },
+        { q: "20. _____ he tell you the truth?", opts: ["Was", "Were", "Did"], a: "Did", exp: "Động từ (Tell) -> Dùng Did." },
+
+        // --- PART 3: IRREGULAR VERBS (Chia động từ) ---
+        { q: "21. Last year, I _____ (go) to Japan.", opts: ["goed", "went", "gone"], a: "went", exp: "Go -> Went." },
+        { q: "22. We _____ (buy) a lot of food.", opts: ["buyed", "bought", "brought"], a: "bought", exp: "Buy -> Bought." },
+        { q: "23. He _____ (take) me to the cinema.", opts: ["taked", "took", "taken"], a: "took", exp: "Take -> Took." },
+        { q: "24. I _____ (sleep) very well.", opts: ["sleeped", "slept", "sliped"], a: "slept", exp: "Sleep -> Slept." },
+        { q: "25. She _____ (make) a cake.", opts: ["maked", "made", "make"], a: "made", exp: "Make -> Made." },
+        { q: "26. We _____ (spend) 2 days there.", opts: ["spended", "spent", "spen"], a: "spent", exp: "Spend -> Spent." },
+        { q: "27. I _____ (feel) sick yesterday.", opts: ["feeled", "felt", "fell"], a: "felt", exp: "Feel -> Felt." },
+        { q: "28. The machine _____ (break).", opts: ["breaked", "broke", "broken"], a: "broke", exp: "Break -> Broke." },
+        { q: "29. He _____ (decide) to leave.", opts: ["decided", "decid", "decides"], a: "decided", exp: "Decide -> Decided (Có quy tắc)." },
+        { q: "30. I _____ (see) him at the mall.", opts: ["saw", "seed", "seen"], a: "saw", exp: "See -> Saw." },
+
+        // --- PART 4: ADVANCED ZONE (Thử thách) ---
+        { q: "31. I _____ play football when I was young, but now I don't.", opts: ["use to", "used to", "was used"], a: "used to", exp: "💎 <b>Used to:</b> Đã từng làm gì (thói quen cũ)." },
+        { q: "32. He said he _____ help me, but he didn't.", opts: ["will", "would", "can"], a: "would", exp: "💎 <b>Would:</b> Quá khứ của Will (Sẽ - trong lời kể lại)." },
+        { q: "33. We ran _____ of money halfway through the trip.", opts: ["out", "off", "over"], a: "out", exp: "💎 <b>Run out of:</b> Cạn kiệt/Hết sạch (tiền, xăng...)." },
+        { q: "34. ____ it rained, we still went out.", opts: ["Because", "Although", "So"], a: "Although", exp: "💎 <b>Although:</b> Mặc dù (Chỉ sự đối lập)." },
+        { q: "35. I was exhausted _____ the long drive.", opts: ["because", "because of", "so"], a: "because of", exp: "💎 <b>Because of + Noun:</b> Bởi vì chuyến đi dài (Danh từ)." },
+        { q: "36. I haven't seen him _____ 2010.", opts: ["in", "since", "for"], a: "since", exp: "💎 <b>Since:</b> Kể từ mốc thời gian (Dấu hiệu thì Hoàn thành - Mở rộng)." },
+        { q: "37. By the time he arrived, I _____.", opts: ["left", "had left", "leave"], a: "had left", exp: "💎 <b>Had left:</b> Quá khứ hoàn thành (Xảy ra trước 1 hành động quá khứ khác)." },
+        { q: "38. I'm not used to _____ up early.", opts: ["get", "getting", "got"], a: "getting", exp: "💎 <b>Be used to + V-ing:</b> Quen với việc gì đó." },
+        { q: "39. Did you _____ to go to that school?", opts: ["use", "used", "uses"], a: "use", exp: "💎 <b>Did ... use to:</b> Câu hỏi của Used to thì Use về nguyên thể." },
+        { q: "40. Choose the Natural Flow sentence:", opts: ["My health was bad.", "I was under the weather.", "I was bad health."], a: "I was under the weather.", exp: "💎 <b>Under the weather:</b> Thành ngữ (Idiom) chỉ việc cảm thấy không khỏe." }
+    ];
+
+    function startQuiz() {
+        document.getElementById('start-screen').style.display = 'none';
+        document.getElementById('quiz-content').style.display = 'block';
+        document.getElementById('timer-bar').style.display = 'block';
+        renderQuiz();
+        startTimer(20 * 60);
+    }
+
+    function renderQuiz() {
+        const container = document.getElementById('quiz-container');
+        questions.forEach((item, index) => {
+            let isBoss = index >= 30; // 10 câu cuối là Boss
+            let bossBadge = isBoss ? '<span class="boss-badge">🔥 ADVANCED</span><br>' : '';
+            let cardClass = isBoss ? 'question-card boss-card' : 'question-card';
+            
+            let html = `<div class="${cardClass}" id="card-${index}">
+                ${bossBadge}
+                <span class="question-text">Câu ${index + 1}: ${item.q}</span>
+                <div class="options">`;
+            
+            item.opts.forEach(opt => {
+                html += `<label><input type="radio" name="q${index}" value="${opt}"> ${opt}</label>`;
+            });
+
+            html += `</div><div class="feedback" id="fb-${index}"></div></div>`;
+            container.innerHTML += html;
+        });
+    }
+
+    function startTimer(duration) {
+        let timer = duration, minutes, seconds;
+        let interval = setInterval(function () {
+            minutes = parseInt(timer / 60, 10);
+            seconds = parseInt(timer % 60, 10);
+            minutes = minutes < 10 ? "0" + minutes : minutes;
+            seconds = seconds < 10 ? "0" + seconds : seconds;
+            document.getElementById('time').textContent = minutes + ":" + seconds;
+            if (--timer < 0) {
+                clearInterval(interval);
+                submitQuiz();
+            }
+        }, 1000);
+    }
+
+    function submitQuiz() {
+        let score = 0;
+        let report = "CHI TIẾT LỖI SAI:\n";
+        
+        questions.forEach((item, index) => {
+            const selected = document.querySelector(`input[name="q${index}"]:checked`);
+            const fb = document.getElementById(`fb-${index}`);
+            fb.style.display = 'block';
+
+            if (selected && selected.value === item.a) {
+                score++;
+                fb.innerHTML = `<span class="correct">✅ Chính xác!</span> ${item.exp}`;
+                document.getElementById(`card-${index}`).style.borderLeftColor = "#2a9d8f";
+            } else {
+                let userAns = selected ? selected.value : "Chưa chọn";
+                fb.innerHTML = `<span class="wrong">❌ Sai rồi.</span> Đáp án: <b>${item.a}</b><br>💡 ${item.exp}`;
+                document.getElementById(`card-${index}`).style.borderLeftColor = "#d00000";
+                report += `Câu ${index + 1}: Bạn chọn '${userAns}' -> Đáp án đúng: '${item.a}'\n`;
+            }
+        });
+
+        document.getElementById('score-display').innerText = `ĐIỂM SỐ: ${score} / 40`;
+        document.getElementById('final-report').value = score === 40 ? "XUẤT SẮC! KHÔNG SAI CÂU NÀO!" : report;
+        document.getElementById('report-area').style.display = 'block';
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+</script>
+</body>
+</html>
