@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Remedial: Be vs. Do/Does</title>
+<style>
+    :root {
+        --primary: #2b2d42;
+        --accent: #ef233c;
+        --bg: #edf2f4;
+        --text: #333;
+    }
+    body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); padding: 20px; }
+    .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+    
+    h1 { color: var(--primary); text-align: center; border-bottom: 3px solid var(--accent); padding-bottom: 10px; }
+    .section-title { background: var(--primary); color: white; padding: 10px; border-radius: 5px; margin-top: 30px; }
+    
+    .question-card { background: #fff; border: 1px solid #ddd; margin-bottom: 15px; padding: 15px; border-radius: 8px; border-left: 5px solid #8d99ae; }
+    .original-sentence { font-size: 1.2em; font-weight: bold; color: var(--accent); margin-bottom: 10px; display: block; }
+    .instruction { font-style: italic; color: #666; font-size: 0.9em; margin-bottom: 10px; }
+    
+    .options label { display: block; padding: 8px; cursor: pointer; border-radius: 4px; transition: 0.2s; border: 1px solid transparent; }
+    .options label:hover { background: #f8f9fa; border-color: #ddd; }
+    .options input { margin-right: 10px; transform: scale(1.2); }
+
+    .feedback { display: none; margin-top: 10px; padding: 10px; background: #e9ecef; border-radius: 5px; font-weight: bold; }
+    .correct { color: #2a9d8f; }
+    .wrong { color: #d90429; }
+
+    .btn-submit { width: 100%; padding: 15px; background: var(--accent); color: white; border: none; font-size: 1.2em; font-weight: bold; border-radius: 10px; cursor: pointer; margin-top: 20px; }
+    .btn-submit:hover { background: #d90429; }
+
+    #score-area { display: none; text-align: center; margin-top: 20px; font-size: 1.5em; font-weight: bold; color: var(--primary); }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🛠️ TRẠM BẢO DƯỠNG: BE vs. DO</h1>
+    <p style="text-align: center;">Nhiệm vụ: Chuyển câu Khẳng định sang Nghi vấn (?) hoặc Phủ định (-)</p>
+
+    <div class="section-title">🏰 LEVEL 1: VƯƠNG QUỐC "TO BE" (Mô tả)</div>
+    <p><i>Quy tắc: Chỉ dùng Am/Is/Are. Cấm dùng Do/Does.</i></p>
+    <div id="part1"></div>
+
+    <div class="section-title">⚔️ LEVEL 2: VƯƠNG QUỐC "HÀNH ĐỘNG"</div>
+    <p><i>Quy tắc: Mượn trợ lý Do/Does. Động từ về nguyên thể.</i></p>
+    <div id="part2"></div>
+
+    <div class="section-title">🔥 LEVEL 3: VÙNG HỖN HỢP (THỬ THÁCH)</div>
+    <p><i>Quy tắc: Nhìn kỹ xem là "Mô tả" hay "Hành động" để chọn Vua hay Trợ lý.</i></p>
+    <div id="part3"></div>
+
+    <button class="btn-submit" onclick="submitQuiz()">CHẤM ĐIỂM NGAY</button>
+    <div id="score-area"></div>
+</div>
+
+<script>
+    const questions = [
+        // PART 1: TO BE (1-10)
+        { 
+            q: "1. She is beautiful.", 
+            task: "Chuyển sang câu hỏi (?)", 
+            opts: ["Does she beautiful?", "Is she beautiful?", "Does she be beautiful?"], 
+            a: "Is she beautiful?", 
+            exp: "Có 'Is' (To Be) -> Đảo 'Is' lên đầu." 
+        },
+        { 
+            q: "2. They are hungry.", 
+            task: "Chuyển sang phủ định (-)", 
+            opts: ["They don't hungry.", "They not are hungry.", "They aren't hungry."], 
+            a: "They aren't hungry.", 
+            exp: "Có 'Are' -> Thêm not thành Aren't. (Hungry là tính từ -> Ko dùng Don't)." 
+        },
+        { 
+            q: "3. I am late.", 
+            task: "Chuyển sang câu hỏi (?)", 
+            opts: ["Am I late?", "Do I late?", "Am I be late?"], 
+            a: "Am I late?", 
+            exp: "Có 'Am' -> Đảo 'Am' lên đầu." 
+        },
+        { 
+            q: "4. It is cold today.", 
+            task: "Chuyển sang phủ định (-)", 
+            opts: ["It doesn't cold today.", "It isn't cold today.", "It not cold today."], 
+            a: "It isn't cold today.", 
+            exp: "Có 'Is' -> Thêm not thành Isn't." 
+        },
+        { 
+            q: "5. We are teachers.", 
+            task: "Chuyển sang câu hỏi (?)", 
+            opts: ["Do we teachers?", "Are we teachers?", "Do we are teachers?"], 
+            a: "Are we teachers?", 
+            exp: "Teachers là danh từ -> Dùng Are." 
+        },
+        { 
+            q: "6. He is at home.", 
+            task: "Chuyển sang phủ định (-)", 
+            opts: ["He doesn't at home.", "He isn't at home.", "He don't at home."], 
+            a: "He isn't at home.", 
+            exp: "Ở tại đâu (At home) -> Dùng Isn't." 
+        },
+        { 
+            q: "7. You are tired.", 
+            task: "Chuyển sang câu hỏi (?)", 
+            opts: ["Are you tired?", "Do you tired?", "Have you tired?"], 
+            a: "Are you tired?", 
+            exp: "Tired (Mệt - tính từ) -> Dùng Are." 
+        },
+        { 
+            q: "8. This book is interesting.", 
+            task: "Chuyển sang câu hỏi (?)", 
+            opts: ["Does this book interesting?", "Is this book interesting?", "Is book interesting?"], 
+            a: "Is this book interesting?", 
+            exp: "Book (số ít) -> Is." 
+        },
+        { 
+            q: "9. My friends are funny.", 
+            task: "Chuyển sang phủ định (-)", 
+            opts: ["My friends don't funny.", "My friends aren't funny.", "My friends isn't funny."], 
+            a: "My friends aren't funny.", 
+            exp: "Friends (số nhiều) -> Aren't." 
+        },
+        { 
+            q: "10. The sky is blue.", 
+            task: "Chuyển sang câu hỏi (?)", 
+            opts: ["Is the sky blue?", "Does the sky blue?", "Is sky blue?"], 
+            a: "Is the sky blue?", 
+            exp: "Mô tả màu sắc -> Dùng Is." 
+        },
+
+        // PART 2: ACTION (11-20)
+        { 
+            q: "11. He likes pizza.", 
+            task: "Chuyển sang câu hỏi (?)", 
+            opts: ["Is he like pizza?", "Does he likes pizza?", "Does he like pizza?"], 
+            a: "Does he like pizza?", 
+            exp: "Like là động từ -> Mượn Does. (Nhớ bỏ 's' ở like)." 
+        },
+        { 
+            q: "12. They play football.", 
+            task: "Chuyển sang phủ định (-)", 
+            opts: ["They aren't play football.", "They don't play football.", "They doesn't play football."], 
+            a: "They don't play football.", 
+            exp: "Play là động từ -> Mượn Don't." 
+        },
+        { 
+            q: "13. She lives in Hanoi.", 
+            task: "Chuyển sang câu hỏi (?)", 
+            opts: ["Is she live in Hanoi?", "Does she live in Hanoi?", "Do she live in Hanoi?"], 
+            a: "Does she live in Hanoi?", 
+            exp: "Live là động từ -> Mượn Does." 
+        },
+        { 
+            q: "14. We watch TV.", 
+            task: "Chuyển sang phủ định (-)", 
+            opts: ["We aren't watch TV.", "We don't watch TV.", "We not watch TV."], 
+            a: "We don't watch TV.", 
+            exp: "Watch là động từ -> Mượn Don't." 
+        },
+        { 
+            q: "15. It rains a lot.", 
+            task: "Chuyển sang câu hỏi (?)", 
+            opts: ["Is it rain a lot?", "Does it rain a lot?", "Does it rains a lot?"], 
+            a: "Does it rain a lot?", 
+            exp: "Rain (Mưa) là động từ -> Mượn Does. (Về nguyên thể)." 
+        },
+        { 
+            q: "16. You speak English.", 
+            task: "Chuyển sang câu hỏi (?)", 
+            opts: ["Are you speak English?", "Do you speak English?", "Does you speak English?"], 
+            a: "Do you speak English?", 
+            exp: "Speak là động từ -> Mượn Do với You." 
+        },
+        { 
+            q: "17. My cat drinks milk.", 
+            task: "Chuyển sang phủ định (-)", 
+            opts: ["My cat doesn't drinks milk.", "My cat doesn't drink milk.", "My cat isn't drink milk."], 
+            a: "My cat doesn't drink milk.", 
+            exp: "Trợ lý Doesn't xuất hiện -> Drink bỏ 's'." 
+        },
+        { 
+            q: "18. They go to school.", 
+            task: "Chuyển sang câu hỏi (?)", 
+            opts: ["Are they go to school?", "Do they go to school?", "Do they goes to school?"], 
+            a: "Do they go to school?", 
+            exp: "Go là động từ -> Mượn Do." 
+        },
+        { 
+            q: "19. I understand.", 
+            task: "Chuyển sang phủ định (-)", 
+            opts: ["I am not understand.", "I don't understand.", "I doesn't understand."], 
+            a: "I don't understand.", 
+            exp: "Understand là động từ -> Mượn Don't. (Sai lầm phổ biến: I'm not understand)." 
+        },
+        { 
+            q: "20. He works here.", 
+            task: "Chuyển sang câu hỏi (?)", 
+            opts: ["Is he work here?", "Does he work here?", "Do he work here?"], 
+            a: "Does he work here?", 
+            exp: "Work là động từ -> Mượn Does." 
+        },
+
+        // PART 3: MIXED (21-30)
+        { 
+            q: "21. She _____ happy.", 
+            task: "Chọn câu hỏi đúng", 
+            opts: ["Does she happy?", "Is she happy?"], 
+            a: "Is she happy?", 
+            exp: "Happy là tính từ (Vương quốc 1) -> Is." 
+        },
+        { 
+            q: "22. He _____ to the park.", 
+            task: "Chọn câu hỏi đúng", 
+            opts: ["Does he go to the park?", "Is he go to the park?"], 
+            a: "Does he go to the park?", 
+            exp: "Go là hành động (Vương quốc 2) -> Does." 
+        },
+        { 
+            q: "23. You _____ a teacher.", 
+            task: "Chọn câu hỏi đúng", 
+            opts: ["Do you a teacher?", "Are you a teacher?"], 
+            a: "Are you a teacher?", 
+            exp: "Teacher là danh từ (Vương quốc 1) -> Are." 
+        },
+        { 
+            q: "24. They _____ pizza.", 
+            task: "Chọn câu phủ định đúng", 
+            opts: ["They don't eat pizza.", "They aren't eat pizza."], 
+            a: "They don't eat pizza.", 
+            exp: "Eat là hành động -> Don't." 
+        },
+        { 
+            q: "25. It _____ hot.", 
+            task: "Chọn câu phủ định đúng", 
+            opts: ["It doesn't hot.", "It isn't hot."], 
+            a: "It isn't hot.", 
+            exp: "Hot là tính từ -> Isn't." 
+        },
+        { 
+            q: "26. Why _____ you cry?", 
+            task: "Chọn từ điền vào chỗ trống", 
+            opts: ["do", "are"], 
+            a: "do", 
+            exp: "Cry là hành động -> Do." 
+        },
+        { 
+            q: "27. Where _____ she from?", 
+            task: "Chọn từ điền vào chỗ trống", 
+            opts: ["is", "does"], 
+            a: "is", 
+            exp: "From (đến từ đâu) là trạng thái -> Is." 
+        },
+        { 
+            q: "28. _____ he have a car?", 
+            task: "Chọn từ điền vào chỗ trống", 
+            opts: ["Is", "Does"], 
+            a: "Does", 
+            exp: "Have (Có) là động từ -> Does." 
+        },
+        { 
+            q: "29. She _____ busy.", 
+            task: "Chọn câu phủ định đúng", 
+            opts: ["She doesn't busy.", "She isn't busy."], 
+            a: "She isn't busy.", 
+            exp: "Busy (Bận) là tính từ -> Isn't." 
+        },
+        { 
+            q: "30. I _____ agree.", 
+            task: "Chọn câu phủ định đúng", 
+            opts: ["I am not agree.", "I don't agree."], 
+            a: "I don't agree.", 
+            exp: "Agree (Đồng ý) là động từ -> Don't. (Cấm dùng I'm not agree)." 
+        }
+    ];
+
+    function renderQuiz() {
+        const p1 = document.getElementById('part1');
+        const p2 = document.getElementById('part2');
+        const p3 = document.getElementById('part3');
+
+        questions.forEach((item, index) => {
+            let container = index < 10 ? p1 : (index < 20 ? p2 : p3);
+            let html = `
+            <div class="question-card" id="card-${index}">
+                <span class="original-sentence">⚡ ${item.q}</span>
+                <p class="instruction">👉 ${item.task}</p>
+                <div class="options">`;
+            
+            item.opts.forEach(opt => {
+                html += `<label><input type="radio" name="q${index}" value="${opt}"> ${opt}</label>`;
+            });
+
+            html += `</div><div class="feedback" id="fb-${index}"></div></div>`;
+            container.innerHTML += html;
+        });
+    }
+
+    function submitQuiz() {
+        let score = 0;
+        questions.forEach((item, index) => {
+            const selected = document.querySelector(`input[name="q${index}"]:checked`);
+            const fb = document.getElementById(`fb-${index}`);
+            fb.style.display = 'block';
+
+            if (selected && selected.value === item.a) {
+                score++;
+                fb.innerHTML = `<span class="correct">✅ CHÍNH XÁC!</span> ${item.exp}`;
+                document.getElementById(`card-${index}`).style.borderLeftColor = "#2a9d8f";
+            } else {
+                fb.innerHTML = `<span class="wrong">❌ SAI RỒI.</span> Đáp án đúng: <b>${item.a}</b><br>💡 ${item.exp}`;
+                document.getElementById(`card-${index}`).style.borderLeftColor = "#d90429";
+            }
+        });
+
+        const scoreArea = document.getElementById('score-area');
+        scoreArea.style.display = 'block';
+        scoreArea.innerText = `KẾT QUẢ: ${score} / 30`;
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    renderQuiz();
+</script>
+</body>
+</html>
