@@ -18,6 +18,7 @@ const data = [
       { title: "1. Penalty Shootout — 5 Q Chốt Hạ Tuần 1", path: 'Week 2/1. bai-tap-1_2.html' },
       { title: "2. Monday Warm-up — 30 Q Ôn Lại (15m)", path: 'Week 2/2. bai-tap-1.html' },
       { title: "3. Check Logic Warm-up — 20 Q Khởi Động", path: 'Week 2/3. ReviewWeek1.html' },
+      { title: "3.1 Remedial: Be vs. Do/Does", path: 'Week 2/3.1. Remedial_PresentSimple.html' },
       { title: "4. Past Simple Challenge — 40 Q (20m)", path: 'Week 2/4. BaiTapTuan2_PastSimple.html' },
       { title: "5. Mixed Review — Vocab & Grammar (20 Q)", path: 'Week 2/5. MixedReview_Week2.html' }
     ]
